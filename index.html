@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>نتيجة الطالب</title>
+  <style>
+    body {
+      font-family: 'Tahoma', sans-serif;
+      background: #f2f2f2;
+      padding: 30px;
+      direction: rtl;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #1e88e5;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1565c0;
+    }
+
+    .result {
+      margin-top: 20px;
+      white-space: pre-wrap;
+      background: #e8f5e9;
+      border: 1px solid #a5d6a7;
+      padding: 15px;
+      border-radius: 6px;
+    }
+
+    .error {
+      background: #ffebee;
+      border: 1px solid #ef9a9a;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>استعلام عن النتيجة</h2>
+
+  <label for="no">رقم الطالب</label>
+  <input type="text" id="no" placeholder="أدخل رقم الطالب">
+
+  <label for="dob">الرمز السري (اختياري)</label>
+  <input type="text" id="dob" placeholder="أدخل الرمز السري إن وجد">
+
+  <button onclick="fetchResult()">عرض النتيجة</button>
+
+  <div id="output" class="result" style="display: none;"></div>
+</div>
+
+<script>
+  async function fetchResult() {
+    const no = document.getElementById('no').value.trim();
+    const dob = document.getElementById('dob').value.trim();
+    const output = document.getElementById('output');
+
+    output.style.display = 'block';
+    output.classList.remove('error');
+    output.textContent = '🔄 جاري البحث...';
+
+    const payload = { no };
+    if (dob) payload.dob = dob;
+
+    try {
+      const response = await fetch("https://tsghdj5.najah.iq/exam-result/student", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "User-Agent": "Mozilla/5.0"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) throw new Error("الطلب فشل أو مرفوض (رمز: " + response.status + ")");
+
+      const data = await response.json();
+
+      if (data.student) {
+        const s = data.student;
+        let resultText = ✅ تم العثور على النتيجة:\n\n;
+        resultText += 👤 الاسم: ${s.name || "؟"}\n🏫 المدرسة: ${s.school || "؟"}\n📊 المجموع: ${s.total || "؟"}\n📈 المعدل: ${s.average || "؟"}\n📌 الحالة: ${s.status || "؟"}\n\n📘 الدرجات:\n;
+
+        for (let subject in s.grades) {
+          resultText += - ${subject}: ${s.grades[subject]}\n;
+        }
+
+        output.textContent = resultText;
+      } else {
+        output.textContent = "❌ لم يتم العثور على النتيجة، تأكد من المعلومات.";
+        output.classList.add('error');
+      }
+
+    } catch (err) {
+      output.textContent = "⚠️ حصل خطأ أثناء الاتصال:\n" + err.message;
+      output.classList.add('error');
+    }
+  }
+</script>
+
+</body>
+</html>
