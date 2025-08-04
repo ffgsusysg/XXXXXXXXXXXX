@@ -37,6 +37,39 @@
             background-color: #c62828;
             border-color: #ef5350;
         }
+
+        /* تنسيق لعرض JSON */
+        .json-output-container {
+            position: relative;
+        }
+
+        .json-output {
+            background-color: #1a1a2e;
+            border-radius: 8px;
+            padding: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            text-align: left;
+            color: #f8f8f2;
+        }
+        
+        .json-output::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .json-output::-webkit-scrollbar-track {
+            background: #2d2d3e;
+            border-radius: 10px;
+        }
+
+        .json-output::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 p-8 flex justify-center items-center min-h-screen">
@@ -78,12 +111,14 @@
             </div>
 
             <!-- قسم عرض JSON -->
-            <div id="jsonContainer" class="hidden p-6 bg-gray-900 rounded-xl shadow-inner border border-gray-700">
+            <div id="jsonContainer" class="hidden">
                 <h3 class="text-xl font-bold text-gray-200 mb-4">بيانات JSON:</h3>
-                <pre id="jsonOutput" class="bg-gray-700 p-4 rounded-lg overflow-auto text-sm text-gray-200 text-left"></pre>
-                <button onclick="copyJsonToClipboard()" class="btn-primary w-full p-3 mt-3 rounded-lg font-bold text-lg text-white">
-                    نسخ JSON إلى الحافظة
-                </button>
+                <div class="json-output-container">
+                    <pre id="jsonOutput" class="json-output"></pre>
+                    <button onclick="copyJsonToClipboard()" class="absolute top-2 left-2 bg-gray-600 hover:bg-gray-500 text-white p-2 rounded-lg text-xs transition-colors duration-300">
+                        نسخ
+                    </button>
+                </div>
             </div>
 
             <!-- قسم الرسائل التنبيهية -->
@@ -96,7 +131,7 @@
         const BASE_URL = "https://gw.abgateway.com/content/next-item";
         const teacherSelect = document.getElementById("teacherSelect");
         const lessonsContainer = document.getElementById("lessonsContainer");
-        const lessonsList = document.getElementById("lessonsList");
+        const lessonsList = document.getElementById("lessonsList"); // تم تغيير المعرف
         const jsonContainer = document.getElementById("jsonContainer");
         const jsonOutput = document.getElementById("jsonOutput");
         const exportJsonBtn = document.getElementById("exportJsonBtn");
@@ -182,7 +217,7 @@
                 return;
             }
 
-            lessonsList.innerHTML = '';
+            lessonsList.innerHTML = ''; // تم تغيير المعرف
             jsonContainer.classList.add('hidden');
             exportJsonBtn.disabled = true;
             exportJsonBtn.classList.add('opacity-50', 'cursor-not-allowed');
@@ -233,7 +268,7 @@
                     const listItem = document.createElement("li");
                     listItem.className = "text-gray-300";
                     listItem.textContent = `🎥 ${lesson.title_ar} (ID: ${lesson.id})`;
-                    lessonsList.appendChild(listItem);
+                    lessonsList.appendChild(listItem); // تم تغيير المعرف
                 }
 
                 if (allLessons.length > 0) {
