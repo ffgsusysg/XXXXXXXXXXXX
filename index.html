@@ -1,132 +1,22 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>المحاضرة التالية</title>
-  <style>
-    body {
-      font-family: 'Tahoma', sans-serif;
-      background-color: #f0f0f0;
-      padding: 20px;
-      text-align: center;
-      direction: rtl;
-    }
-    .container {
-      background: #fff;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-      display: inline-block;
-      max-width: 500px;
-    }
-    select, button {
-      padding: 10px;
-      font-size: 16px;
-      margin: 10px 0;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      width: 100%;
-    }
-    button {
-      background-color: #007bff;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    #lessonInfo {
-      margin-top: 20px;
-      text-align: right;
-    }
-    #lessonTitle {
-      color: #333;
-    }
-    a {
-      color: #0066cc;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-    .hidden {
-      display: none;
-    }
-    .alert {
-      color: red;
-      margin-top: 10px;
-    }
-  </style>
-</head>
-<body>
-
-  <div class="container">
-    <h2>📚 عرض المحاضرة التالية</h2>
-
-    <label for="teacher">اختر المدرس:</label>
-    <select id="teacher">
-      <option value="">-- اختر المدرس --</option>
-      <option value="ahmed">أ. أحمد</option>
-      <option value="sara">أ. سارة</option>
-      <option value="khaled">أ. خالد</option>
-    </select>
-
-    <button id="fetchLesson">عرض المحاضرة</button>
-
-    <div id="lessonInfo" class="hidden">
-      <h3 id="lessonTitle"></h3>
-      <p><a id="lessonLink" href="#" target="_blank">🔗 فتح المحاضرة</a></p>
-      <p id="lessonMeta"></p>
-    </div>
-
-    <p id="message" class="alert"></p>
-  </div>
-
-  <script>
-    const BASE_URL = "https://gw.abgateway.com/content/next-item";
-    
-    // بيانات المدرسين
-    const teachers = {
-      ahmed: { subject_id: 4758, item_id: 299517, subtopic_id: 129489 },
-      sara:  { subject_id: 4760, item_id: 299600, subtopic_id: 129490 },
-      khaled:{ subject_id: 4762, item_id: 299700, subtopic_id: 129491 }
-    };
-
-    document.getElementById("fetchLesson").addEventListener("click", async () => {
-      const teacherKey = document.getElementById("teacher").value;
-      const message = document.getElementById("message");
-      const lessonInfo = document.getElementById("lessonInfo");
-      const titleEl = document.getElementById("lessonTitle");
-      const linkEl = document.getElementById("lessonLink");
-      const metaEl = document.getElementById("lessonMeta");
-
-      message.textContent = "";
-      lessonInfo.classList.add("hidden");
-
-      if (!teacherKey || !teachers[teacherKey]) {
-        message.textContent = "🚫 يرجى اختيار مدرس أولاً.";
-        return;
-      }
-
-      let { subject_id, item_id, subtopic_id } = teachers[teacherKey];
-      let item_type = "lesson";
-      let lastValidLesson = null;
-
-      try {
+try {
         while (true) {
-          const url = ${BASE_URL}?subject_id=${subject_id}&item_id=${item_id}&subtopic_id=${subtopic_id}&item_type=${item_type};
-          const response = await fetch(url, {
+          const params = new URLSearchParams({
+            subject_id,
+            item_id,
+            subtopic_id,
+            item_type
+          });
+
+          const res = await fetch(${BASE_URL}?${params.toString()}, {
             headers: { "User-Agent": "Mozilla/5.0" }
           });
 
-          if (!response.ok) throw new Error("فشل الاتصال بالخادم");
+          if (!res.ok) throw new Error("فشل في الاتصال");
 
-          const json = await response.json();
+          const json = await res.json();
           const data = json.data;
 
           if (!data || data.length === 0) {
-            message.textContent = "🚫 لا توجد محاضرات جديدة حالياً.";
             break;
           }
 
@@ -135,21 +25,37 @@
           item_id = lesson.id;
           subtopic_id = lesson.subtopic_id;
 
-          if (title && !title.includes("قريب")) {
-            lastValidLesson = lesson;
-            titleEl.textContent = "🎥 " + title;
-            linkEl.href = lesson.lesson_url;
-            metaEl.textContent = 🆔 ID: ${lesson.id} | Subtopic: ${lesson.subtopic_id};
-            lessonInfo.classList.remove("hidden");
-            break;
+          if (title.includes("قريب")) {
+            continue;
           }
+
+          results.push(lesson);
         }
+
+        alertBox.textContent = results.length
+          ? ✅ تم العثور على ${results.length} محاضرة.
+          : "🚫 لا توجد محاضرات حقيقية.";
+
+        // عرض النتائج
+        for (const lesson of results) {
+          const div = document.createElement("div");
+          div.className = "lesson";
+          div.innerHTML = 
+            <strong>🎥 ${lesson.title_ar}</strong><br>
+            <a href="${lesson.lesson_url}" target="_blank">🔗 رابط المحاضرة</a><br>
+            🆔 ID: ${lesson.id} | Subtopic ID: ${lesson.subtopic_id}
+          ;
+          lessonsContainer.appendChild(div);
+        }
+
       } catch (err) {
-        message.textContent = "❌ حدث خطأ أثناء جلب المحاضرة.";
+        alertBox.textContent = "❌ حدث خطأ أثناء جلب المحاضرات.";
         console.error(err);
       }
-    });
-  </script>
+    }
 
+    // تحميل المدرسين عند بدء الصفحة
+    loadTeachers();
+  </script>
 </body>
 </html>
