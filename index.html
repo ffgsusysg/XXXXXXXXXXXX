@@ -163,6 +163,17 @@
         const exportJsonBtn = document.getElementById("exportJsonBtn");
         const alertBox = document.getElementById("alertBox");
 
+        // مصفوفة من الآيات القرآنية التحفيزية
+        const motivationalQuranicVerses = [
+            "﴿وَلَا تَيْئَسُوا مِن رَّوْحِ اللَّهِ ۖ إِنَّهُ لَا يَيْئَسُ مِن رَّوْحِ اللَّهِ إِلَّا الْقَوْمُ الْكَافِرُونَ﴾",
+            "﴿فَإِنَّ مَعَ الْعُسْرِ يُسْرًا ۝ إِنَّ مَعَ الْعُسْرِ يُسْرًا﴾",
+            "﴿وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰ﴾",
+            "﴿وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ ۚ عَلَيْهِ تَوَكَّلْتُ وَإِلَيْهِ أُنِيبُ﴾",
+            "﴿وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا﴾",
+            "﴿هُوَ عَلَيَّ هَيِّنٌ﴾",
+            "﴿وَمَا كَانَ رَبُّكَ نَسِيًّا﴾"
+        ];
+
         // متغير لتخزين بيانات المحاضرات التي تم جلبها
         let allLessons = [];
 
@@ -331,9 +342,10 @@
             const reversedLessons = [...allLessons].reverse();
 
             // إنشاء مصفوفة المحاضرات بالصيغة المطلوبة
-            const lectures = reversedLessons.map(lesson => ({
+            const lectures = reversedLessons.map((lesson, index) => ({
                 title: lesson.title_ar,
-                description: "لا يوجد وصف متاح.", // إضافة وصف افتراضي
+                // إرفاق آية قرآنية تحفيزية لكل محاضرة
+                description: motivationalQuranicVerses[index % motivationalQuranicVerses.length],
                 url: lesson.lesson_url
             }));
 
