@@ -67,6 +67,39 @@
             background-color: #c62828;
             border-color: #ef5350;
         }
+
+        /* تنسيق لعرض JSON */
+        .json-output-container {
+            position: relative;
+        }
+
+        .json-output {
+            background-color: #1a1a2e;
+            border-radius: 8px;
+            padding: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            text-align: left;
+            color: #f8f8f2;
+        }
+        
+        .json-output::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .json-output::-webkit-scrollbar-track {
+            background: #2d2d3e;
+            border-radius: 10px;
+        }
+
+        .json-output::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 p-8 flex justify-center items-center min-h-screen">
@@ -92,11 +125,30 @@
             <div class="p-6 bg-gray-900 rounded-xl shadow-inner border border-gray-700">
                 <h3 class="text-xl font-bold text-gray-200 mb-4">اختر المدرس:</h3>
                 <select id="teacherSelect" class="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors duration-300"></select>
-                <button onclick="fetchLessons()" class="btn-primary w-full p-3 mt-5 rounded-lg font-bold text-lg text-white">📥 جلب المحاضرات</button>
+                <div class="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-3 md:space-x-reverse mt-5">
+                    <button onclick="fetchLessons()" class="btn-primary w-full p-3 rounded-lg font-bold text-lg text-white">📥 جلب المحاضرات</button>
+                    <!-- زر جديد لتصدير البيانات إلى JSON -->
+                    <button id="exportJsonBtn" onclick="exportToJson()" class="btn-primary w-full p-3 rounded-lg font-bold text-lg text-white opacity-50 cursor-not-allowed" disabled>
+                        📄 تصدير JSON
+                    </button>
+                </div>
             </div>
             
-            <!-- قسم عرض المحاضرات والرسائل التنبيهية -->
+            <!-- قسم عرض المحاضرات -->
             <div id="lessonsContainer" class="space-y-4"></div>
+
+            <!-- قسم عرض JSON -->
+            <div id="jsonContainer" class="hidden">
+                <h3 class="text-xl font-bold text-gray-200 mb-4">بيانات JSON:</h3>
+                <div class="json-output-container">
+                    <pre id="jsonOutput" class="json-output"></pre>
+                    <button onclick="copyJsonToClipboard()" class="absolute top-2 left-2 bg-gray-600 hover:bg-gray-500 text-white p-2 rounded-lg text-xs transition-colors duration-300">
+                        نسخ
+                    </button>
+                </div>
+            </div>
+
+            <!-- قسم الرسائل التنبيهية -->
             <div id="alertBox" class="alert-box text-center p-3 rounded-lg font-bold text-white transition-opacity duration-300 opacity-0"></div>
         </div>
     </div>
@@ -106,12 +158,18 @@
         const BASE_URL = "https://gw.abgateway.com/content/next-item";
         const teacherSelect = document.getElementById("teacherSelect");
         const lessonsContainer = document.getElementById("lessonsContainer");
+        const jsonContainer = document.getElementById("jsonContainer");
+        const jsonOutput = document.getElementById("jsonOutput");
+        const exportJsonBtn = document.getElementById("exportJsonBtn");
         const alertBox = document.getElementById("alertBox");
+
+        // متغير لتخزين بيانات المحاضرات التي تم جلبها
+        let allLessons = [];
 
         /**
          * عرض رسالة تنبيهية في صندوق التنبيهات.
          * @param {string} message - الرسالة المراد عرضها.
-         * @param {string} type - نوع الرسالة ("success" للنجاح، "error" للخطأ).
+         * @param {string} type - نوع الرسالة ("success" للنجاح، "error" للخطأ، "info" للمعلومات).
          */
         function showAlert(message, type) {
             alertBox.textContent = message;
@@ -128,16 +186,13 @@
          */
         function loadTeachers() {
             teacherSelect.innerHTML = '';
-            // الحصول على المدرسين من localStorage أو إنشاء كائن فارغ إذا لم يكن موجودًا
             const teachers = JSON.parse(localStorage.getItem("teachers") || "{}");
             
-            // إضافة خيار افتراضي
             const defaultOption = document.createElement("option");
             defaultOption.value = "";
             defaultOption.textContent = "--- اختر مدرسًا ---";
             teacherSelect.appendChild(defaultOption);
             
-            // إضافة كل مدرس كخيار في قائمة الاختيار
             for (const name in teachers) {
                 const option = document.createElement("option");
                 option.value = name;
@@ -148,7 +203,6 @@
 
         /**
          * إضافة مدرس جديد وحفظه في الذاكرة المحلية (localStorage).
-         * تم إصلاح الأخطاء في التحقق من الحقول هنا.
          */
         function addTeacher() {
             const name = document.getElementById("teacherName").value.trim();
@@ -156,7 +210,6 @@
             const item_id = +document.getElementById("itemId").value;
             const subtopic_id = +document.getElementById("subtopicId").value;
 
-            // التحقق من أن جميع الحقول مملوءة بشكل صحيح
             if (!name || !subject_id || !item_id || !subtopic_id) {
                 showAlert("❌ يرجى ملء جميع الحقول.", "error");
                 return;
@@ -171,7 +224,6 @@
 
         /**
          * جلب المحاضرات من API بناءً على المدرس المختار.
-         * تم إصلاح الأخطاء في استخدام `fetch` و`template literals`.
          */
         async function fetchLessons() {
             const selectedTeacher = teacherSelect.value;
@@ -181,19 +233,20 @@
             }
 
             lessonsContainer.innerHTML = '';
+            jsonContainer.classList.add('hidden');
+            exportJsonBtn.disabled = true;
+            exportJsonBtn.classList.add('opacity-50', 'cursor-not-allowed');
             showAlert("⏳ جاري جلب المحاضرات...", "info");
 
-            // الحصول على بيانات المدرس المختار
             const { subject_id, item_id: startItemId, subtopic_id: startSubtopicId } = JSON.parse(localStorage.getItem("teachers"))[selectedTeacher];
 
             let item_id = startItemId;
             let subtopic_id = startSubtopicId;
             const item_type = "lesson";
-            const results = [];
-            let lessonCount = 0; // متغير لتتبع عدد المحاضرات
+            allLessons = []; // تفريغ مصفوفة المحاضرات قبل الجلب
+            let lessonCount = 0;
 
             try {
-                // الحلقة تستمر في الجلب حتى لا يوجد المزيد من البيانات أو يتم الوصول إلى حد معين
                 while (true) {
                     const params = new URLSearchParams({
                         subject_id,
@@ -202,7 +255,6 @@
                         item_type
                     });
 
-                    // تم إصلاح استخدام الـ `template literal` هنا
                     const res = await fetch(`${BASE_URL}?${params.toString()}`, {
                         headers: { "User-Agent": "Mozilla/5.0" }
                     });
@@ -214,7 +266,6 @@
                     const json = await res.json();
                     const data = json.data;
 
-                    // الخروج من الحلقة إذا لم يتم العثور على بيانات
                     if (!data || data.length === 0) {
                         break;
                     }
@@ -224,14 +275,12 @@
                     item_id = lesson.id;
                     subtopic_id = lesson.subtopic_id;
 
-                    // تخطي المحاضرات التي تحتوي على كلمة "قريب"
                     if (title.includes("قريب")) {
                         continue;
                     }
-
-                    results.push(lesson);
                     
-                    // تحديث مؤشر التقدم
+                    allLessons.push(lesson); // حفظ المحاضرة في المصفوفة
+                    
                     lessonCount++;
                     lessonsContainer.innerHTML += `
                         <div class="lesson-item flex items-center justify-between p-4 rounded-xl shadow-lg border border-gray-700 bg-gray-900 text-sm md:text-base mb-4 transform transition-transform duration-300 hover:scale-105">
@@ -248,13 +297,15 @@
                             </a>
                         </div>
                     `;
-                    // إعطاء كل عنصر جديد مدخل وقت للظهور
                     const newLessonItem = lessonsContainer.lastElementChild;
                     newLessonItem.style.animationDelay = `${lessonCount * 0.1}s`;
                 }
 
-                if (results.length > 0) {
-                    showAlert(`✅ تم العثور على ${results.length} محاضرة.`, "success");
+                if (allLessons.length > 0) {
+                    showAlert(`✅ تم العثور على ${allLessons.length} محاضرة.`, "success");
+                    // تفعيل زر التصدير بعد جلب البيانات
+                    exportJsonBtn.disabled = false;
+                    exportJsonBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                 } else {
                     showAlert("🚫 لا توجد محاضرات حقيقية.", "error");
                 }
@@ -263,6 +314,54 @@
                 showAlert(`❌ حدث خطأ: ${err.message}`, "error");
                 console.error(err);
             }
+        }
+
+        /**
+         * تحويل المحاضرات التي تم جلبها إلى تنسيق JSON وعرضها.
+         */
+        function exportToJson() {
+            if (allLessons.length === 0) {
+                showAlert("🚫 لا توجد محاضرات لتصديرها.", "error");
+                return;
+            }
+
+            const selectedTeacherName = teacherSelect.value;
+            
+            // إنشاء مصفوفة المحاضرات بالصيغة المطلوبة
+            const lectures = allLessons.map(lesson => ({
+                title: lesson.title_ar,
+                description: "لا يوجد وصف متاح.", // إضافة وصف افتراضي
+                url: lesson.lesson_url
+            }));
+
+            // إنشاء كائن JSON بالصيغة المطلوبة
+            const jsonObject = {
+                classes: [{
+                    name: selectedTeacherName, // استخدام اسم المدرس كاسم للفصل
+                    lectures: lectures
+                }]
+            };
+
+            // تحويل الكائن إلى نص JSON مع تنسيق جميل
+            const jsonString = JSON.stringify(jsonObject, null, 2);
+
+            // عرض JSON في الحاوية المخصصة
+            jsonOutput.textContent = jsonString;
+            jsonContainer.classList.remove('hidden');
+            showAlert("✅ تم إنشاء ملف JSON بنجاح.", "success");
+        }
+        
+        /**
+         * نسخ محتوى JSON إلى الحافظة.
+         */
+        function copyJsonToClipboard() {
+            const textToCopy = jsonOutput.textContent;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showAlert("✅ تم نسخ محتوى JSON إلى الحافظة!", "success");
+            }).catch(err => {
+                showAlert("❌ فشل النسخ إلى الحافظة.", "error");
+                console.error('Failed to copy text: ', err);
+            });
         }
 
         // تحميل المدرسين عند بدء الصفحة
