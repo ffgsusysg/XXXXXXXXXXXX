@@ -3,91 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>جلب المحاضرات - أداة متطورة</title>
-    <!-- تضمين مكتبة Tailwind CSS من خلال CDN لإضافة تصميم عصري ومؤثرات جميلة -->
+    <title>أداة جلب المحاضرات</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
         
         body {
             font-family: 'Cairo', sans-serif;
-            background-color: #0d0d1a;
-        }
-        
-        /* إضافة مؤثرات متقدمة للزر */
-        .btn-primary {
-            background-image: linear-gradient(to right, #00c6ff, #0072ff);
-            box-shadow: 0 4px 15px rgba(0, 198, 255, 0.4);
-            transition: all 0.3s ease-in-out;
-            transform: scale(1);
-        }
-        
-        .btn-primary:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(0, 198, 255, 0.6);
         }
 
-        /* تنسيق حاوية التنبيهات */
+        .btn-primary {
+            background-color: #2563eb;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+
         .alert-box.success {
-            background-color: #2e7d32;
-            border-color: #66bb6a;
+            background-color: #10b981;
         }
 
         .alert-box.error {
-            background-color: #c62828;
-            border-color: #ef5350;
+            background-color: #ef4444;
+        }
+
+        .alert-box.info {
+            background-color: #3b82f6;
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-100 p-8 flex justify-center items-center min-h-screen">
-
-    <div class="container bg-gray-800 bg-opacity-70 backdrop-blur-sm p-8 rounded-2xl shadow-xl max-w-lg w-full transform transition-transform duration-500 hover:scale-[1.01]">
+<body class="bg-gray-100 text-gray-800 p-6 flex justify-center items-center min-h-screen">
+    <div class="container bg-white p-8 rounded-lg shadow-md max-w-lg w-full">
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-700">📚 أداة جلب المحاضرات</h1>
         
-        <h1 class="text-3xl md:text-4xl font-bold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-500">
-            📚 أداة جلب المحاضرات
-        </h1>
-
         <div class="space-y-6">
-            <!-- قسم إضافة مدرس جديد -->
-            <div class="p-6 bg-gray-900 rounded-xl shadow-inner border border-gray-700">
-                <h3 class="text-xl font-bold text-gray-200 mb-4">إضافة مدرس جديد:</h3>
-                <input type="text" id="teacherName" placeholder="اسم المدرس" class="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors duration-300">
-                <input type="number" id="subjectId" placeholder="Subject ID" class="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 mt-3 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors duration-300">
-                <input type="number" id="itemId" placeholder="Item ID" class="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 mt-3 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors duration-300">
-                <input type="number" id="subtopicId" placeholder="Subtopic ID" class="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 mt-3 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors duration-300">
-                <button onclick="addTeacher()" class="btn-primary w-full p-3 mt-5 rounded-lg font-bold text-lg text-white">➕ حفظ المدرس</button>
+            <div class="p-4 bg-gray-50 rounded-md border border-gray-200">
+                <h3 class="text-xl font-bold text-gray-700 mb-4">إضافة مدرس جديد:</h3>
+                <input type="text" id="teacherName" placeholder="اسم المدرس" class="w-full p-2 rounded-md bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="number" id="subjectId" placeholder="Subject ID" class="w-full p-2 rounded-md bg-white border border-gray-300 mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="number" id="itemId" placeholder="Item ID" class="w-full p-2 rounded-md bg-white border border-gray-300 mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="number" id="subtopicId" placeholder="Subtopic ID" class="w-full p-2 rounded-md bg-white border border-gray-300 mt-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button onclick="addTeacher()" class="btn-primary w-full p-2 mt-4 rounded-md text-white font-semibold">➕ حفظ المدرس</button>
             </div>
 
-            <!-- قسم اختيار المدرس وجلب المحاضرات -->
-            <div class="p-6 bg-gray-900 rounded-xl shadow-inner border border-gray-700">
-                <h3 class="text-xl font-bold text-gray-200 mb-4">اختر المدرس:</h3>
-                <select id="teacherSelect" class="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors duration-300"></select>
-                <div class="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-3 md:space-x-reverse mt-5">
-                    <button onclick="fetchLessons()" class="btn-primary w-full p-3 rounded-lg font-bold text-lg text-white">📥 جلب المحاضرات</button>
-                    <!-- زر جديد لتصدير البيانات إلى JSON -->
-                    <button id="exportJsonBtn" onclick="exportToJson()" class="btn-primary w-full p-3 rounded-lg font-bold text-lg text-white opacity-50 cursor-not-allowed" disabled>
+            <div class="p-4 bg-gray-50 rounded-md border border-gray-200">
+                <h3 class="text-xl font-bold text-gray-700 mb-4">اختر المدرس:</h3>
+                <select id="teacherSelect" class="w-full p-2 rounded-md bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+                <div class="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-3 md:space-x-reverse mt-4">
+                    <button onclick="fetchLessons()" class="btn-primary w-full p-2 rounded-md text-white font-semibold">📥 جلب المحاضرات</button>
+                    <button id="exportJsonBtn" onclick="exportToJson()" class="btn-primary w-full p-2 rounded-md text-white font-semibold opacity-50 cursor-not-allowed" disabled>
                         📄 تصدير JSON
                     </button>
                 </div>
             </div>
             
-            <!-- قسم عرض المحاضرات بشكل بسيط -->
-            <div id="lessonsContainer" class="p-6 bg-gray-900 rounded-xl shadow-inner border border-gray-700">
-                <h3 class="text-xl font-bold text-gray-200 mb-4">المحاضرات التي تم جلبها:</h3>
-                <ul id="lessonsList" class="list-disc pr-6 space-y-2 text-right"></ul>
+            <div id="lessonsContainer" class="p-4 bg-gray-50 rounded-md border border-gray-200">
+                <h3 class="text-xl font-bold text-gray-700 mb-4">المحاضرات التي تم جلبها:</h3>
+                <ul id="lessonsList" class="list-disc pr-6 space-y-1 text-right text-gray-600"></ul>
             </div>
 
-            <!-- قسم عرض JSON -->
-            <div id="jsonContainer" class="hidden p-6 bg-gray-900 rounded-xl shadow-inner border border-gray-700">
-                <h3 class="text-xl font-bold text-gray-200 mb-4">بيانات JSON:</h3>
-                <pre id="jsonOutput" class="bg-gray-700 p-4 rounded-lg overflow-auto text-sm text-gray-200 text-left"></pre>
-                <button onclick="copyJsonToClipboard()" class="btn-primary w-full p-3 mt-3 rounded-lg font-bold text-lg text-white">
+            <div id="jsonContainer" class="hidden p-4 bg-gray-50 rounded-md border border-gray-200">
+                <h3 class="text-xl font-bold text-gray-700 mb-4">بيانات JSON:</h3>
+                <pre id="jsonOutput" class="bg-gray-200 p-3 rounded-md overflow-auto text-sm text-gray-700 text-left"></pre>
+                <button onclick="copyJsonToClipboard()" class="btn-primary w-full p-2 mt-3 rounded-md text-white font-semibold">
                     نسخ JSON إلى الحافظة
                 </button>
             </div>
 
-            <!-- قسم الرسائل التنبيهية -->
-            <div id="alertBox" class="alert-box text-center p-3 rounded-lg font-bold text-white transition-opacity duration-300 opacity-0"></div>
+            <div id="alertBox" class="alert-box text-center p-3 rounded-md text-white font-bold transition-opacity duration-300 opacity-0"></div>
         </div>
     </div>
 
@@ -95,45 +80,33 @@
         // تعريف الثوابت المستخدمة في السكربت
         const BASE_URL = "https://gw.abgateway.com/content/next-item";
         const teacherSelect = document.getElementById("teacherSelect");
-        const lessonsContainer = document.getElementById("lessonsContainer");
         const lessonsList = document.getElementById("lessonsList");
         const jsonContainer = document.getElementById("jsonContainer");
         const jsonOutput = document.getElementById("jsonOutput");
         const exportJsonBtn = document.getElementById("exportJsonBtn");
         const alertBox = document.getElementById("alertBox");
 
-        // مصفوفة من الآيات القرآنية التحفيزية
         const motivationalQuranicVerses = [
-            "﴿وَلَا تَيْئَسُوا مِن رَّوْحِ اللَّهِ ۖ إِنَّهُ لَا يَيْئَسُ مِن رَّوْحِ اللَّهِ إِلَّا الْقَوْمُ الْكَافِرُونَ﴾",
-            "﴿فَإِنَّ مَعَ الْعُسْرِ يُسْرًا ۝ إِنَّ مَعَ الْعُسْرِ يُسْرًا﴾",
-            "﴿وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰ﴾",
-            "﴿وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ ۚ عَلَيْهِ تَوَكَّلْتُ وَإِلَيْهِ أُنِيبُ﴾",
-            "﴿وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا﴾",
-            "﴿هُوَ عَلَيَّ هَيِّنٌ﴾",
-            "﴿وَمَا كَانَ رَبُّكَ نَسِيًّا﴾"
+            "﴿وَلَا تَيْئَسُوا مِن رَّوْحِ اللَّهِ ۖ إِنَّهُ لَا يَيْئَسُ مِن رَّوْحِ اللَّهِ إِلَّا الْقَوْمُ الْكَافِرُونَ﴾",
+            "﴿فَإِنَّ مَعَ الْعُسْرِ يُسْرًا ۝ إِنَّ مَعَ الْعُسْرِ يُسْرًا﴾",
+            "﴿وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰ﴾",
+            "﴿وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ ۚ عَلَيْهِ تَوَكَّلْتُ وَإِلَيْهِ أُنِيبُ﴾",
+            "﴿وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا﴾",
+            "﴿هُوَ عَلَيَّ هَيِّنٌ﴾",
+            "﴿وَمَا كَانَ رَبُّكَ نَسِيًّا﴾"
         ];
-
-        // متغير لتخزين بيانات المحاضرات التي تم جلبها
+        
         let allLessons = [];
 
-        /**
-         * عرض رسالة تنبيهية في صندوق التنبيهات.
-         * @param {string} message - الرسالة المراد عرضها.
-         * @param {string} type - نوع الرسالة ("success" للنجاح، "error" للخطأ، "info" للمعلومات).
-         */
         function showAlert(message, type) {
             alertBox.textContent = message;
-            alertBox.className = `alert-box text-center p-3 rounded-lg font-bold text-white transition-opacity duration-300 opacity-100 ${type}`;
-            // إخفاء الرسالة بعد 5 ثوان
+            alertBox.className = `alert-box text-center p-3 rounded-md text-white font-bold transition-opacity duration-300 opacity-100 ${type}`;
             setTimeout(() => {
                 alertBox.classList.remove('opacity-100');
                 alertBox.classList.add('opacity-0');
             }, 5000);
         }
 
-        /**
-         * تحميل قائمة المدرسين المحفوظة من الذاكرة المحلية (localStorage).
-         */
         function loadTeachers() {
             teacherSelect.innerHTML = '';
             const teachers = JSON.parse(localStorage.getItem("teachers") || "{}");
@@ -151,9 +124,6 @@
             }
         }
 
-        /**
-         * إضافة مدرس جديد وحفظه في الذاكرة المحلية (localStorage).
-         */
         function addTeacher() {
             const name = document.getElementById("teacherName").value.trim();
             const subject_id = +document.getElementById("subjectId").value;
@@ -172,9 +142,6 @@
             showAlert("✅ تم حفظ المدرس بنجاح.", "success");
         }
 
-        /**
-         * جلب المحاضرات من API بناءً على المدرس المختار.
-         */
         async function fetchLessons() {
             const selectedTeacher = teacherSelect.value;
             if (!selectedTeacher) {
@@ -193,7 +160,7 @@
             let item_id = startItemId;
             let subtopic_id = startSubtopicId;
             const item_type = "lesson";
-            allLessons = []; // تفريغ مصفوفة المحاضرات قبل الجلب
+            allLessons = [];
 
             try {
                 while (true) {
@@ -228,17 +195,16 @@
                         continue;
                     }
                     
-                    allLessons.push(lesson); // حفظ المحاضرة في المصفوفة
+                    allLessons.push(lesson);
                     
                     const listItem = document.createElement("li");
-                    listItem.className = "text-gray-300";
+                    listItem.className = "text-gray-600";
                     listItem.textContent = `🎥 ${lesson.title_ar} (ID: ${lesson.id})`;
                     lessonsList.appendChild(listItem);
                 }
 
                 if (allLessons.length > 0) {
                     showAlert(`✅ تم العثور على ${allLessons.length} محاضرة.`, "success");
-                    // تفعيل زر التصدير بعد جلب البيانات
                     exportJsonBtn.disabled = false;
                     exportJsonBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                 } else {
@@ -251,9 +217,6 @@
             }
         }
 
-        /**
-         * تحويل المحاضرات التي تم جلبها إلى تنسيق JSON وعرضها.
-         */
         function exportToJson() {
             if (allLessons.length === 0) {
                 showAlert("🚫 لا توجد محاضرات لتصديرها.", "error");
@@ -261,38 +224,28 @@
             }
 
             const selectedTeacherName = teacherSelect.value;
-            
-            // عكس ترتيب المصفوفة لعرض المحاضرات من الأحدث للأقدم
             const reversedLessons = [...allLessons].reverse();
 
-            // إنشاء مصفوفة المحاضرات بالصيغة المطلوبة
             const lectures = reversedLessons.map((lesson, index) => ({
                 title: lesson.title_ar,
-                // إرفاق آية قرآنية تحفيزية لكل محاضرة
                 description: motivationalQuranicVerses[index % motivationalQuranicVerses.length],
                 url: lesson.lesson_url
             }));
 
-            // إنشاء كائن JSON بالصيغة المطلوبة
             const jsonObject = {
                 classes: [{
-                    name: selectedTeacherName, // استخدام اسم المدرس كاسم للفصل
+                    name: selectedTeacherName,
                     lectures: lectures
                 }]
             };
 
-            // تحويل الكائن إلى نص JSON مع تنسيق جميل
             const jsonString = JSON.stringify(jsonObject, null, 2);
 
-            // عرض JSON في الحاوية المخصصة
             jsonOutput.textContent = jsonString;
             jsonContainer.classList.remove('hidden');
             showAlert("✅ تم إنشاء ملف JSON بنجاح.", "success");
         }
         
-        /**
-         * نسخ محتوى JSON إلى الحافظة.
-         */
         function copyJsonToClipboard() {
             const textToCopy = jsonOutput.textContent;
             navigator.clipboard.writeText(textToCopy).then(() => {
@@ -303,7 +256,6 @@
             });
         }
 
-        // تحميل المدرسين عند بدء الصفحة
         window.onload = loadTeachers;
     </script>
 </body>
