@@ -27,36 +27,6 @@
             box-shadow: 0 6px 20px rgba(0, 198, 255, 0.6);
         }
 
-        /* مؤثرات تحميل المحاضرات */
-        .lesson-item {
-            animation: fadeIn 0.5s ease-out forwards;
-            opacity: 0;
-            background: rgba(25, 30, 45, 0.5); /* خلفية شبه شفافة */
-            backdrop-filter: blur(10px); /* تأثير ضبابي */
-            border: 1px solid rgba(0, 198, 255, 0.2);
-        }
-        
-        .lesson-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 198, 255, 0.3);
-            border-color: rgba(0, 198, 255, 0.5);
-        }
-        
-        /* مؤثرات تحميل الصفحة */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* جعل الألوان متناسقة مع تصميم الموقع */
-        .text-accent {
-            color: #00c6ff;
-        }
-
-        .border-accent {
-            border-color: #00c6ff;
-        }
-
         /* تنسيق حاوية التنبيهات */
         .alert-box.success {
             background-color: #2e7d32;
@@ -104,7 +74,7 @@
 </head>
 <body class="bg-gray-900 text-gray-100 p-8 flex justify-center items-center min-h-screen">
 
-    <div class="container bg-gray-800 bg-opacity-70 backdrop-blur-sm p-8 rounded-2xl shadow-xl max-w-lg w-full transform transition-transform duration-500 hover:scale-[1.01] animate-fadeIn border-2 border-gray-700">
+    <div class="container bg-gray-800 bg-opacity-70 backdrop-blur-sm p-8 rounded-2xl shadow-xl max-w-lg w-full transform transition-transform duration-500 hover:scale-[1.01]">
         
         <h1 class="text-3xl md:text-4xl font-bold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-500">
             📚 أداة جلب المحاضرات
@@ -134,8 +104,11 @@
                 </div>
             </div>
             
-            <!-- قسم عرض المحاضرات -->
-            <div id="lessonsContainer" class="space-y-4"></div>
+            <!-- قسم عرض المحاضرات بشكل بسيط -->
+            <div id="lessonsContainer" class="p-6 bg-gray-900 rounded-xl shadow-inner border border-gray-700">
+                <h3 class="text-xl font-bold text-gray-200 mb-4">المحاضرات التي تم جلبها:</h3>
+                <ul id="lessonsList" class="list-disc pr-6 space-y-2 text-right"></ul>
+            </div>
 
             <!-- قسم عرض JSON -->
             <div id="jsonContainer" class="hidden">
@@ -158,6 +131,7 @@
         const BASE_URL = "https://gw.abgateway.com/content/next-item";
         const teacherSelect = document.getElementById("teacherSelect");
         const lessonsContainer = document.getElementById("lessonsContainer");
+        const lessonsList = document.getElementById("lessonsList"); // تم تغيير المعرف
         const jsonContainer = document.getElementById("jsonContainer");
         const jsonOutput = document.getElementById("jsonOutput");
         const exportJsonBtn = document.getElementById("exportJsonBtn");
@@ -243,7 +217,7 @@
                 return;
             }
 
-            lessonsContainer.innerHTML = '';
+            lessonsList.innerHTML = ''; // تم تغيير المعرف
             jsonContainer.classList.add('hidden');
             exportJsonBtn.disabled = true;
             exportJsonBtn.classList.add('opacity-50', 'cursor-not-allowed');
@@ -255,7 +229,6 @@
             let subtopic_id = startSubtopicId;
             const item_type = "lesson";
             allLessons = []; // تفريغ مصفوفة المحاضرات قبل الجلب
-            let lessonCount = 0;
 
             try {
                 while (true) {
@@ -292,24 +265,10 @@
                     
                     allLessons.push(lesson); // حفظ المحاضرة في المصفوفة
                     
-                    lessonCount++;
-                    lessonsContainer.innerHTML += `
-                        <div class="lesson-item flex items-center justify-between p-4 rounded-xl shadow-lg border border-gray-700 bg-gray-900 text-sm md:text-base mb-4 transform transition-transform duration-300 hover:scale-105">
-                            <div class="flex-grow text-right pr-4">
-                                <strong class="text-lg md:text-xl text-blue-300 font-bold block mb-1">
-                                    <span class="text-blue-500">🎥</span> ${lesson.title_ar}
-                                </strong>
-                                <span class="text-gray-400 block text-xs md:text-sm">
-                                    ID: ${lesson.id} | Subtopic ID: ${lesson.subtopic_id}
-                                </span>
-                            </div>
-                            <a href="${lesson.lesson_url}" target="_blank" class="text-cyan-400 hover:underline transition-colors duration-300 ml-4 flex-shrink-0">
-                                🔗 رابط المحاضرة
-                            </a>
-                        </div>
-                    `;
-                    const newLessonItem = lessonsContainer.lastElementChild;
-                    newLessonItem.style.animationDelay = `${lessonCount * 0.1}s`;
+                    const listItem = document.createElement("li");
+                    listItem.className = "text-gray-300";
+                    listItem.textContent = `🎥 ${lesson.title_ar} (ID: ${lesson.id})`;
+                    lessonsList.appendChild(listItem); // تم تغيير المعرف
                 }
 
                 if (allLessons.length > 0) {
