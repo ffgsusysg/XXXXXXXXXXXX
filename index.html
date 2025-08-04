@@ -1,4 +1,160 @@
-try {
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>جلب المحاضرات</title>
+  <style>
+    body {
+      background: #0e0e12;
+      color: #fff;
+      font-family: 'Cairo', sans-serif;
+      margin: 0;
+      padding: 30px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #00eaff;
+      font-size: 2em;
+    }
+
+    .container {
+      background: #1a1a22;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 0 20px #00eaff33;
+    }
+
+    label, input, select, button {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      font-size: 16px;
+    }
+
+    input, select {
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #292936;
+      color: #fff;
+    }
+
+    button {
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: #00eaff;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #00c6e0;
+    }
+
+    .lesson {
+      background: #20202b;
+      margin: 10px 0;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: right;
+    }
+
+    a {
+      color: #00eaff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .alert {
+      color: red;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>📚 جلب المحاضرات</h1>
+
+    <h3>إضافة مدرس جديد:</h3>
+    <input type="text" id="teacherName" placeholder="اسم المدرس">
+    <input type="number" id="subjectId" placeholder="Subject ID">
+    <input type="number" id="itemId" placeholder="Item ID">
+    <input type="number" id="subtopicId" placeholder="Subtopic ID">
+    <button onclick="addTeacher()">➕ حفظ المدرس</button>
+
+    <h3>اختر المدرس:</h3>
+    <select id="teacherSelect"></select>
+    <button onclick="fetchLessons()">📥 جلب المحاضرات</button>
+
+    <div id="lessonsContainer"></div>
+    <div class="alert" id="alert"></div>
+  </div>
+
+  <script>
+    const BASE_URL = "https://gw.abgateway.com/content/next-item";
+    const teacherSelect = document.getElementById("teacherSelect");
+    const lessonsContainer = document.getElementById("lessonsContainer");
+    const alertBox = document.getElementById("alert");
+
+    // استرجاع المدرسين من localStorage
+    function loadTeachers() {
+      teacherSelect.innerHTML = '';
+      const teachers = JSON.parse(localStorage.getItem("teachers") || "{}");
+      for (const name in teachers) {
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        teacherSelect.appendChild(option);
+      }
+    }
+
+    // حفظ مدرس جديد
+    function addTeacher() {
+      const name = document.getElementById("teacherName").value.trim();
+      const subject_id = +document.getElementById("subjectId").value;
+      const item_id = +document.getElementById("itemId").value;
+      const subtopic_id = +document.getElementById("subtopicId").value;
+
+      if (!name  !subject_id  !item_id || !subtopic_id) {
+        alertBox.textContent = "❌ يرجى ملء جميع الحقول.";
+        return;
+      }
+
+      const teachers = JSON.parse(localStorage.getItem("teachers") || "{}");
+      teachers[name] = { subject_id, item_id, subtopic_id };
+      localStorage.setItem("teachers", JSON.stringify(teachers));
+      loadTeachers();
+      alertBox.textContent = "✅ تم حفظ المدرس.";
+    }
+
+    // جلب المحاضرات
+    async function fetchLessons() {
+      const selectedTeacher = teacherSelect.value;
+      if (!selectedTeacher) {
+        alertBox.textContent = "❌ يرجى اختيار مدرس.";
+        return;
+      }
+
+      lessonsContainer.innerHTML = '';
+      alertBox.textContent = "⏳ جاري جلب المحاضرات...";
+
+      const { subject_id, item_id: startItemId, subtopic_id: startSubtopicId } = JSON.parse(localStorage.getItem("teachers"))[selectedTeacher];
+
+      let item_id = startItemId;
+      let subtopic_id = startSubtopicId;
+      const item_type = "lesson";
+      const results = [];
+
+      try {
         while (true) {
           const params = new URLSearchParams({
             subject_id,
