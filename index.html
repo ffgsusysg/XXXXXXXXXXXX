@@ -327,8 +327,11 @@
 
             const selectedTeacherName = teacherSelect.value;
             
+            // عكس ترتيب المصفوفة لعرض المحاضرات من الأحدث للأقدم
+            const reversedLessons = [...allLessons].reverse();
+
             // إنشاء مصفوفة المحاضرات بالصيغة المطلوبة
-            const lectures = allLessons.map(lesson => ({
+            const lectures = reversedLessons.map(lesson => ({
                 title: lesson.title_ar,
                 description: "لا يوجد وصف متاح.", // إضافة وصف افتراضي
                 url: lesson.lesson_url
