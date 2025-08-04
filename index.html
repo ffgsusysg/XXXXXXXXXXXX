@@ -1,217 +1,272 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>جلب المحاضرات</title>
-  <style>
-    body {
-      background: #0e0e12;
-      color: #fff;
-      font-family: 'Cairo', sans-serif;
-      margin: 0;
-      padding: 30px;
-      text-align: center;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جلب المحاضرات - أداة متطورة</title>
+    <!-- تضمين مكتبة Tailwind CSS من خلال CDN لإضافة تصميم عصري ومؤثرات جميلة -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #0d0d1a;
+        }
+        
+        /* إضافة مؤثرات متقدمة للزر */
+        .btn-primary {
+            background-image: linear-gradient(to right, #00c6ff, #0072ff);
+            box-shadow: 0 4px 15px rgba(0, 198, 255, 0.4);
+            transition: all 0.3s ease-in-out;
+            transform: scale(1);
+        }
+        
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 198, 255, 0.6);
+        }
 
-    h1 {
-      color: #00eaff;
-      font-size: 2em;
-    }
+        /* مؤثرات تحميل المحاضرات */
+        .lesson-item {
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+            background: rgba(25, 30, 45, 0.5); /* خلفية شبه شفافة */
+            backdrop-filter: blur(10px); /* تأثير ضبابي */
+            border: 1px solid rgba(0, 198, 255, 0.2);
+        }
+        
+        .lesson-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 198, 255, 0.3);
+            border-color: rgba(0, 198, 255, 0.5);
+        }
+        
+        /* مؤثرات تحميل الصفحة */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* جعل الألوان متناسقة مع تصميم الموقع */
+        .text-accent {
+            color: #00c6ff;
+        }
 
-    .container {
-      background: #1a1a22;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 600px;
-      margin: auto;
-      box-shadow: 0 0 20px #00eaff33;
-    }
+        .border-accent {
+            border-color: #00c6ff;
+        }
 
-    label, input, select, button {
-      display: block;
-      width: 100%;
-      margin: 10px 0;
-      font-size: 16px;
-    }
+        /* تنسيق حاوية التنبيهات */
+        .alert-box.success {
+            background-color: #2e7d32;
+            border-color: #66bb6a;
+        }
 
-    input, select {
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      background: #292936;
-      color: #fff;
-    }
-
-    button {
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      background: #00eaff;
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #00c6e0;
-    }
-
-    .lesson {
-      background: #20202b;
-      margin: 10px 0;
-      padding: 15px;
-      border-radius: 8px;
-      text-align: right;
-    }
-
-    a {
-      color: #00eaff;
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
-    .alert {
-      color: red;
-      margin: 10px 0;
-    }
-  </style>
+        .alert-box.error {
+            background-color: #c62828;
+            border-color: #ef5350;
+        }
+    </style>
 </head>
-<body>
+<body class="bg-gray-900 text-gray-100 p-8 flex justify-center items-center min-h-screen">
 
-  <div class="container">
-    <h1>📚 جلب المحاضرات</h1>
+    <div class="container bg-gray-800 bg-opacity-70 backdrop-blur-sm p-8 rounded-2xl shadow-xl max-w-lg w-full transform transition-transform duration-500 hover:scale-[1.01] animate-fadeIn border-2 border-gray-700">
+        
+        <h1 class="text-3xl md:text-4xl font-bold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-500">
+            📚 أداة جلب المحاضرات
+        </h1>
 
-    <h3>إضافة مدرس جديد:</h3>
-    <input type="text" id="teacherName" placeholder="اسم المدرس">
-    <input type="number" id="subjectId" placeholder="Subject ID">
-    <input type="number" id="itemId" placeholder="Item ID">
-    <input type="number" id="subtopicId" placeholder="Subtopic ID">
-    <button onclick="addTeacher()">➕ حفظ المدرس</button>
+        <div class="space-y-6">
+            <!-- قسم إضافة مدرس جديد -->
+            <div class="p-6 bg-gray-900 rounded-xl shadow-inner border border-gray-700">
+                <h3 class="text-xl font-bold text-gray-200 mb-4">إضافة مدرس جديد:</h3>
+                <input type="text" id="teacherName" placeholder="اسم المدرس" class="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors duration-300">
+                <input type="number" id="subjectId" placeholder="Subject ID" class="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 mt-3 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors duration-300">
+                <input type="number" id="itemId" placeholder="Item ID" class="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 mt-3 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors duration-300">
+                <input type="number" id="subtopicId" placeholder="Subtopic ID" class="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 mt-3 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors duration-300">
+                <button onclick="addTeacher()" class="btn-primary w-full p-3 mt-5 rounded-lg font-bold text-lg text-white">➕ حفظ المدرس</button>
+            </div>
 
-    <h3>اختر المدرس:</h3>
-    <select id="teacherSelect"></select>
-    <button onclick="fetchLessons()">📥 جلب المحاضرات</button>
+            <!-- قسم اختيار المدرس وجلب المحاضرات -->
+            <div class="p-6 bg-gray-900 rounded-xl shadow-inner border border-gray-700">
+                <h3 class="text-xl font-bold text-gray-200 mb-4">اختر المدرس:</h3>
+                <select id="teacherSelect" class="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors duration-300"></select>
+                <button onclick="fetchLessons()" class="btn-primary w-full p-3 mt-5 rounded-lg font-bold text-lg text-white">📥 جلب المحاضرات</button>
+            </div>
+            
+            <!-- قسم عرض المحاضرات والرسائل التنبيهية -->
+            <div id="lessonsContainer" class="space-y-4"></div>
+            <div id="alertBox" class="alert-box text-center p-3 rounded-lg font-bold text-white transition-opacity duration-300 opacity-0"></div>
+        </div>
+    </div>
 
-    <div id="lessonsContainer"></div>
-    <div class="alert" id="alert"></div>
-  </div>
+    <script>
+        // تعريف الثوابت المستخدمة في السكربت
+        const BASE_URL = "https://gw.abgateway.com/content/next-item";
+        const teacherSelect = document.getElementById("teacherSelect");
+        const lessonsContainer = document.getElementById("lessonsContainer");
+        const alertBox = document.getElementById("alertBox");
 
-  <script>
-    const BASE_URL = "https://gw.abgateway.com/content/next-item";
-    const teacherSelect = document.getElementById("teacherSelect");
-    const lessonsContainer = document.getElementById("lessonsContainer");
-    const alertBox = document.getElementById("alert");
-
-    // استرجاع المدرسين من localStorage
-    function loadTeachers() {
-      teacherSelect.innerHTML = '';
-      const teachers = JSON.parse(localStorage.getItem("teachers") || "{}");
-      for (const name in teachers) {
-        const option = document.createElement("option");
-        option.value = name;
-        option.textContent = name;
-        teacherSelect.appendChild(option);
-      }
-    }
-
-    // حفظ مدرس جديد
-    function addTeacher() {
-      const name = document.getElementById("teacherName").value.trim();
-      const subject_id = +document.getElementById("subjectId").value;
-      const item_id = +document.getElementById("itemId").value;
-      const subtopic_id = +document.getElementById("subtopicId").value;
-
-      if (!name  !subject_id  !item_id || !subtopic_id) {
-        alertBox.textContent = "❌ يرجى ملء جميع الحقول.";
-        return;
-      }
-
-      const teachers = JSON.parse(localStorage.getItem("teachers") || "{}");
-      teachers[name] = { subject_id, item_id, subtopic_id };
-      localStorage.setItem("teachers", JSON.stringify(teachers));
-      loadTeachers();
-      alertBox.textContent = "✅ تم حفظ المدرس.";
-    }
-
-    // جلب المحاضرات
-    async function fetchLessons() {
-      const selectedTeacher = teacherSelect.value;
-      if (!selectedTeacher) {
-        alertBox.textContent = "❌ يرجى اختيار مدرس.";
-        return;
-      }
-
-      lessonsContainer.innerHTML = '';
-      alertBox.textContent = "⏳ جاري جلب المحاضرات...";
-
-      const { subject_id, item_id: startItemId, subtopic_id: startSubtopicId } = JSON.parse(localStorage.getItem("teachers"))[selectedTeacher];
-
-      let item_id = startItemId;
-      let subtopic_id = startSubtopicId;
-      const item_type = "lesson";
-      const results = [];
-
-      try {
-        while (true) {
-          const params = new URLSearchParams({
-            subject_id,
-            item_id,
-            subtopic_id,
-            item_type
-          });
-
-          const res = await fetch(${BASE_URL}?${params.toString()}, {
-            headers: { "User-Agent": "Mozilla/5.0" }
-          });
-
-          if (!res.ok) throw new Error("فشل في الاتصال");
-
-          const json = await res.json();
-          const data = json.data;
-
-          if (!data || data.length === 0) {
-            break;
-          }
-
-          const lesson = data[0];
-          const title = (lesson.title_ar || "").trim();
-          item_id = lesson.id;
-          subtopic_id = lesson.subtopic_id;
-
-          if (title.includes("قريب")) {
-            continue;
-          }
-
-          results.push(lesson);
+        /**
+         * عرض رسالة تنبيهية في صندوق التنبيهات.
+         * @param {string} message - الرسالة المراد عرضها.
+         * @param {string} type - نوع الرسالة ("success" للنجاح، "error" للخطأ).
+         */
+        function showAlert(message, type) {
+            alertBox.textContent = message;
+            alertBox.className = `alert-box text-center p-3 rounded-lg font-bold text-white transition-opacity duration-300 opacity-100 ${type}`;
+            // إخفاء الرسالة بعد 5 ثوان
+            setTimeout(() => {
+                alertBox.classList.remove('opacity-100');
+                alertBox.classList.add('opacity-0');
+            }, 5000);
         }
 
-        alertBox.textContent = results.length
-          ? ✅ تم العثور على ${results.length} محاضرة.
-          : "🚫 لا توجد محاضرات حقيقية.";
-
-        // عرض النتائج
-        for (const lesson of results) {
-          const div = document.createElement("div");
-          div.className = "lesson";
-          div.innerHTML = 
-            <strong>🎥 ${lesson.title_ar}</strong><br>
-            <a href="${lesson.lesson_url}" target="_blank">🔗 رابط المحاضرة</a><br>
-            🆔 ID: ${lesson.id} | Subtopic ID: ${lesson.subtopic_id}
-          ;
-          lessonsContainer.appendChild(div);
+        /**
+         * تحميل قائمة المدرسين المحفوظة من الذاكرة المحلية (localStorage).
+         */
+        function loadTeachers() {
+            teacherSelect.innerHTML = '';
+            // الحصول على المدرسين من localStorage أو إنشاء كائن فارغ إذا لم يكن موجودًا
+            const teachers = JSON.parse(localStorage.getItem("teachers") || "{}");
+            
+            // إضافة خيار افتراضي
+            const defaultOption = document.createElement("option");
+            defaultOption.value = "";
+            defaultOption.textContent = "--- اختر مدرسًا ---";
+            teacherSelect.appendChild(defaultOption);
+            
+            // إضافة كل مدرس كخيار في قائمة الاختيار
+            for (const name in teachers) {
+                const option = document.createElement("option");
+                option.value = name;
+                option.textContent = name;
+                teacherSelect.appendChild(option);
+            }
         }
 
-      } catch (err) {
-        alertBox.textContent = "❌ حدث خطأ أثناء جلب المحاضرات.";
-        console.error(err);
-      }
-    }
+        /**
+         * إضافة مدرس جديد وحفظه في الذاكرة المحلية (localStorage).
+         * تم إصلاح الأخطاء في التحقق من الحقول هنا.
+         */
+        function addTeacher() {
+            const name = document.getElementById("teacherName").value.trim();
+            const subject_id = +document.getElementById("subjectId").value;
+            const item_id = +document.getElementById("itemId").value;
+            const subtopic_id = +document.getElementById("subtopicId").value;
 
-    // تحميل المدرسين عند بدء الصفحة
-    loadTeachers();
-  </script>
+            // التحقق من أن جميع الحقول مملوءة بشكل صحيح
+            if (!name || !subject_id || !item_id || !subtopic_id) {
+                showAlert("❌ يرجى ملء جميع الحقول.", "error");
+                return;
+            }
+
+            const teachers = JSON.parse(localStorage.getItem("teachers") || "{}");
+            teachers[name] = { subject_id, item_id, subtopic_id };
+            localStorage.setItem("teachers", JSON.stringify(teachers));
+            loadTeachers();
+            showAlert("✅ تم حفظ المدرس بنجاح.", "success");
+        }
+
+        /**
+         * جلب المحاضرات من API بناءً على المدرس المختار.
+         * تم إصلاح الأخطاء في استخدام `fetch` و`template literals`.
+         */
+        async function fetchLessons() {
+            const selectedTeacher = teacherSelect.value;
+            if (!selectedTeacher) {
+                showAlert("❌ يرجى اختيار مدرس.", "error");
+                return;
+            }
+
+            lessonsContainer.innerHTML = '';
+            showAlert("⏳ جاري جلب المحاضرات...", "info");
+
+            // الحصول على بيانات المدرس المختار
+            const { subject_id, item_id: startItemId, subtopic_id: startSubtopicId } = JSON.parse(localStorage.getItem("teachers"))[selectedTeacher];
+
+            let item_id = startItemId;
+            let subtopic_id = startSubtopicId;
+            const item_type = "lesson";
+            const results = [];
+            let lessonCount = 0; // متغير لتتبع عدد المحاضرات
+
+            try {
+                // الحلقة تستمر في الجلب حتى لا يوجد المزيد من البيانات أو يتم الوصول إلى حد معين
+                while (true) {
+                    const params = new URLSearchParams({
+                        subject_id,
+                        item_id,
+                        subtopic_id,
+                        item_type
+                    });
+
+                    // تم إصلاح استخدام الـ `template literal` هنا
+                    const res = await fetch(`${BASE_URL}?${params.toString()}`, {
+                        headers: { "User-Agent": "Mozilla/5.0" }
+                    });
+
+                    if (!res.ok) {
+                        throw new Error("فشل في الاتصال بالخادم. قد تكون هناك مشكلة في البيانات أو الشبكة.");
+                    }
+
+                    const json = await res.json();
+                    const data = json.data;
+
+                    // الخروج من الحلقة إذا لم يتم العثور على بيانات
+                    if (!data || data.length === 0) {
+                        break;
+                    }
+
+                    const lesson = data[0];
+                    const title = (lesson.title_ar || "").trim();
+                    item_id = lesson.id;
+                    subtopic_id = lesson.subtopic_id;
+
+                    // تخطي المحاضرات التي تحتوي على كلمة "قريب"
+                    if (title.includes("قريب")) {
+                        continue;
+                    }
+
+                    results.push(lesson);
+                    
+                    // تحديث مؤشر التقدم
+                    lessonCount++;
+                    lessonsContainer.innerHTML += `
+                        <div class="lesson-item flex items-center justify-between p-4 rounded-xl shadow-lg border border-gray-700 bg-gray-900 text-sm md:text-base mb-4 transform transition-transform duration-300 hover:scale-105">
+                            <div class="flex-grow text-right pr-4">
+                                <strong class="text-lg md:text-xl text-blue-300 font-bold block mb-1">
+                                    <span class="text-blue-500">🎥</span> ${lesson.title_ar}
+                                </strong>
+                                <span class="text-gray-400 block text-xs md:text-sm">
+                                    ID: ${lesson.id} | Subtopic ID: ${lesson.subtopic_id}
+                                </span>
+                            </div>
+                            <a href="${lesson.lesson_url}" target="_blank" class="text-cyan-400 hover:underline transition-colors duration-300 ml-4 flex-shrink-0">
+                                🔗 رابط المحاضرة
+                            </a>
+                        </div>
+                    `;
+                    // إعطاء كل عنصر جديد مدخل وقت للظهور
+                    const newLessonItem = lessonsContainer.lastElementChild;
+                    newLessonItem.style.animationDelay = `${lessonCount * 0.1}s`;
+                }
+
+                if (results.length > 0) {
+                    showAlert(`✅ تم العثور على ${results.length} محاضرة.`, "success");
+                } else {
+                    showAlert("🚫 لا توجد محاضرات حقيقية.", "error");
+                }
+
+            } catch (err) {
+                showAlert(`❌ حدث خطأ: ${err.message}`, "error");
+                console.error(err);
+            }
+        }
+
+        // تحميل المدرسين عند بدء الصفحة
+        window.onload = loadTeachers;
+    </script>
 </body>
 </html>
