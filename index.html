@@ -224,7 +224,10 @@
             }
 
             const selectedTeacherName = teacherSelect.value;
-            const reversedLessons = [...allLessons].reverse();
+            
+            // **هذا هو التغيير الرئيسي:**
+            // استخدام `slice()` لإنشاء نسخة جديدة من المصفوفة ثم عكسها باستخدام `reverse()`
+            const reversedLessons = allLessons.slice().reverse();
 
             const lectures = reversedLessons.map((lesson, index) => ({
                 title: lesson.title_ar,
