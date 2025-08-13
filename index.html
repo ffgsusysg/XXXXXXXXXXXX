@@ -1,314 +1,207 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<!DOCTYPE html><html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة أديسون</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #1a1a1a;
-            color: #f3f4f6;
-            direction: rtl;
-            text-align: right;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .container {
-            max-width: 900px;
-            width: 100%;
-            padding: 1.5rem;
-            margin: 0 1rem;
-            background-color: #2a2a2a;
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-        }
-
-        .btn-primary {
-            background-image: linear-gradient(to right, #4c51bf, #667eea);
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-            box-shadow: 0 4px 15px rgba(76, 81, 191, 0.4);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(76, 81, 191, 0.6);
-        }
-
-        .lecture-btn {
-            background-color: #3b3b3b;
-            border-left: 4px solid #6366f1;
-            transition: all 0.2s ease-in-out;
-        }
-
-        .lecture-btn:hover {
-            background-color: #4b4b4b;
-            transform: translateX(5px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Loading spinner */
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #6366f1;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Hide content initially */
-        #splash-screen, #main-content {
-            display: none;
-        }
-        
-        .fade-in {
-            animation: fadeIn 0.5s ease-in-out forwards;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>بوابة المحاضرة — المدرس حسين الهاشمي</title>
+  <style>
+    :root {
+      --bg: #0f172a; /* slate-900 */
+      --card: #111827; /* gray-900 */
+      --text: #e5e7eb; /* gray-200 */
+      --muted: #9ca3af; /* gray-400 */
+      --accent: #22d3ee; /* cyan-400 */
+      --accent-2: #06b6d4; /* cyan-500 */
+      --ring: rgba(34, 211, 238, 0.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #0b1220 0%, #0f172a 100%);
+      min-height: 100vh;
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .wrap {
+      width: min(1200px, 100%);
+      display: grid;
+      gap: 16px;
+    }
+    .card {
+      background: radial-gradient(1200px 300px at 10% -10%, rgba(34,211,238,.08), transparent), var(--card);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    .header {
+      display: grid;
+      grid-template-columns: 64px 1fr auto;
+      align-items: center;
+      gap: 16px;
+    }
+    .avatar {
+      width: 64px; height: 64px; border-radius: 16px;
+      display: grid; place-items: center; font-weight: 700; font-size: 22px;
+      background: linear-gradient(145deg, #0ea5e9, #06b6d4);
+      color: white;
+      box-shadow: inset 0 0 12px rgba(255,255,255,.2), 0 10px 20px rgba(14,165,233,.35);
+    }
+    .title { font-size: 22px; font-weight: 700; }
+    .subtitle { color: var(--muted); font-size: 14px; margin-top: 4px; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn {
+      background: linear-gradient(145deg, var(--accent), var(--accent-2));
+      color: #001219; font-weight: 800; border: none; border-radius: 14px;
+      padding: 10px 16px; cursor: pointer; transition: transform .08s ease, filter .2s ease;
+      box-shadow: 0 6px 18px rgba(6,182,212,.35);
+    }
+    .btn:hover { filter: brightness(1.05); }
+    .btn:active { transform: translateY(1px); }
+    .btn.secondary {
+      background: #0b1220; color: var(--text); border: 1px solid rgba(255,255,255,.08);
+      box-shadow: none; font-weight: 600;
+    }
+    .status { font-size: 13px; color: var(--muted); }
+    .player-card { padding: 0; overflow: hidden; }
+    #player { width: 100%; height: min(70vh, 680px); display: grid; place-items: center; background: #0b1220; }
+    #player iframe, #player video { width: 100%; height: 100%; border: 0; }
+    .code {
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: rgba(255,255,255,.04); border: 1px dashed rgba(255,255,255,.08);
+      padding: 8px 10px; border-radius: 10px; font-size: 12px; color: #c8f3ff;
+    }
+    .footer { color: var(--muted); font-size: 12px; text-align: center; padding: 8px; }
+  </style>
 </head>
 <body>
-
-    <!-- شاشة الترحيب -->
-    <div id="splash-screen" class="min-h-screen flex items-center justify-center p-4">
-        <div class="bg-gray-800 bg-opacity-70 backdrop-blur-md rounded-2xl p-8 max-w-lg text-center shadow-2xl animate-fade-in">
-            <h1 class="text-4xl sm:text-5xl font-extrabold text-indigo-400 mb-4 animate-pulse">منصة أديسون</h1>
-            <p class="text-lg sm:text-xl text-gray-200 leading-relaxed mb-8">
-                أهلاً وسهلاً بك في منصة أديسون التعليمية!
-                <br>
-                نتمنى لك رحلة علمية ممتعة.
-            </p>
-            <p class="text-md sm:text-lg text-gray-300 leading-snug mb-8">
-                لتبقى على اطلاع بآخر التحديثات والمحاضرات الجديدة، يرجى الانضمام إلى قناتنا على تيليجرام.
-            </p>
-            <div class="flex flex-col space-y-4">
-                <button id="telegram-button" class="btn-primary flex items-center justify-center w-full px-8 py-4 rounded-full text-lg font-bold text-white transition-all">
-                    <i data-lucide="send" class="ml-2 w-6 h-6"></i>
-                    اشترك في قناة تيليجرام
-                </button>
-                <button id="skip-button" class="w-full px-8 py-4 rounded-full text-lg font-bold text-gray-400 bg-gray-700 hover:bg-gray-600 transition-all">
-                    تخطي
-                </button>
-            </div>
+  <div class="wrap">
+    <div class="card">
+      <div class="header">
+        <div class="avatar" aria-hidden>ح هـ</div>
+        <div>
+          <div class="title">المدرس حسين الهاشمي — بوابة المحاضرة</div>
+          <div class="subtitle">اضغط زر المحاضرة لبدء التشغيل. يتم جلب الرابط الآمن من الخادم تلقائيًا.</div>
         </div>
-    </div>
-
-    <!-- المحتوى الرئيسي للموقع -->
-    <div id="main-content" class="container">
-        <!-- قسم الرأس -->
-        <header class="flex flex-col sm:flex-row items-center justify-between mb-8 pb-4 border-b border-gray-700">
-            <div class="flex items-center space-x-4 mb-4 sm:mb-0">
-                <img src="https://placehold.co/60x60/4c51bf/ffffff?text=E" alt="شعار منصة اديسون" class="rounded-full shadow-lg">
-                <h1 class="text-3xl font-extrabold text-indigo-400">منصة أديسون</h1>
-            </div>
-            <h2 id="teacher-name" class="text-2xl font-bold text-gray-300 cursor-pointer transition-all duration-300 hover:text-indigo-400 hover:scale-105">
-                أ. حسين الهاشمي - كيمياء
-            </h2>
-        </header>
-
-        <!-- قسم الفصول والمحاضرات -->
-        <div id="lectures-section" class="animate-fade-in">
-            <h3 class="text-2xl font-bold text-indigo-300 mb-6">الفصل الأول</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- المحاضرات سيتم إدراجها هنا بواسطة JS -->
-            </div>
+        <div class="actions">
+          <button class="btn" id="playBtn">تشغيل المحاضرة</button>
+          <button class="btn secondary" id="copyLinkBtn" title="نسخ رابط التشغيل">نسخ الرابط</button>
         </div>
+      </div>
+      <div style="margin-top:10px" class="status" id="status">جاهز</div>
+      <div style="margin-top:10px" class="code" id="vidInfo" title="Video ID ثابت"></div>
+    </div><div class="card player-card">
+  <div id="player">سيظهر المشغل هنا بعد جلب الرابط…</div>
+</div>
 
-        <!-- قسم مشغل الفيديو -->
-        <div id="video-player-section" class="hidden mt-8 p-4 bg-gray-800 rounded-xl animate-fade-in">
-            <h3 class="text-xl font-bold text-indigo-200 mb-4">المحاضرة: <span id="current-lecture-title"></span></h3>
-            <div id="video-container" class="relative w-full aspect-video rounded-lg overflow-hidden shadow-xl bg-black">
-                <!-- مشغل الفيديو أو رسالة التحميل -->
-                <div id="loading-message" class="absolute inset-0 flex items-center justify-center">
-                    <div class="flex flex-col items-center">
-                        <div class="spinner mb-3"></div>
-                        <p class="text-white text-lg">جارٍ تحميل المحاضرة...</p>
-                    </div>
-                </div>
-                <iframe id="video-iframe" class="absolute inset-0 w-full h-full" allowfullscreen></iframe>
-            </div>
-        </div>
-    </div>
+<div class="footer">© جميع الحقوق محفوظة — المدرس حسين الهاشمي</div>
 
-    <script>
-        // تهيئة أيقونات Lucide
-        lucide.createIcons();
+  </div>  <script>
+    // ===== الإعدادات =====
+    const WORKER_URL = "https://dark-mode-23c9.hmyzc824-d08.workers.dev/"; // رابط الخادم (Cloudflare Worker)
+    const FIXED_VIDEO_ID = "11828c0f-c9d7-45e3-92be-2a2ab4b49072"; // ID ثابت يمكنك تغييره لاحقًا
+    const EXPIRY_MIN = 1500; // مدة الصلاحية بالدقائق إذا احتاجها الخادم
 
-        // معرفات الفيديو (تمثيل بيانات)
-        const lectureVideoIds = {
-            'محاضرة 1': '11828c0f-c9d7-45e3-92be-2a2ab4b49072',
-            'محاضرة 2': 'lecture2_id_example',
-            'محاضرة 3': 'lecture3_id_example',
-            'محاضرة 4': 'lecture4_id_example',
-            'محاضرة 5': 'lecture5_id_example',
-            'محاضرة 6': 'lecture6_id_example',
-            'محاضرة 7': 'lecture7_id_example',
-            'محاضرة 8': 'lecture8_id_example',
-            'محاضرة 9': 'lecture9_id_example',
-            'محاضرة 10': 'lecture10_id_example'
-        };
+    const statusEl = document.getElementById('status');
+    const playerEl = document.getElementById('player');
+    const playBtn = document.getElementById('playBtn');
+    const copyBtn = document.getElementById('copyLinkBtn');
+    const vidInfo = document.getElementById('vidInfo');
 
-        const splashScreen = document.getElementById('splash-screen');
-        const mainContent = document.getElementById('main-content');
-        const telegramButton = document.getElementById('telegram-button');
-        const skipButton = document.getElementById('skip-button');
-        const teacherName = document.getElementById('teacher-name');
-        const lecturesSection = document.getElementById('lectures-section');
-        const videoPlayerSection = document.getElementById('video-player-section');
-        const lecturesGrid = lecturesSection.querySelector('.grid');
-        const videoIframe = document.getElementById('video-iframe');
-        const loadingMessage = document.getElementById('loading-message');
-        const currentLectureTitle = document.getElementById('current-lecture-title');
+    vidInfo.textContent = videoId: ${FIXED_VIDEO_ID};
 
-        // إظهار شاشة الترحيب عند تحميل الصفحة
-        window.onload = () => {
-            splashScreen.style.display = 'flex';
-        };
+    function setStatus(t) { statusEl.textContent = t; }
 
-        function showMainContent() {
-            splashScreen.style.display = 'none';
-            mainContent.style.display = 'block';
-            createLectureButtons();
-        }
+    function loading(on) {
+      if (on) {
+        playerEl.innerHTML = <svg viewBox="0 0 24 24" width="48" height="48" aria-label="loading" role="img">
+          <circle cx="12" cy="12" r="10" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="3"/>
+          <path d="M22 12a10 10 0 0 1-10 10" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round">
+            <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite" />
+          </path>
+        </svg>;
+      }
+    }
 
-        // الانتقال من شاشة الترحيب إلى المحتوى الرئيسي عند الضغط على زر التيليجرام
-        telegramButton.addEventListener('click', () => {
-            window.open('https://t.me/od7cc', '_blank');
-            showMainContent();
+    async function fetchFromWorker() {
+      setStatus('جاري جلب رابط المحاضرة…');
+      loading(true);
+      try {
+        const res = await fetch(WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ videoId: FIXED_VIDEO_ID, expiryMinutes: EXPIRY_MIN })
         });
 
-        // الانتقال من شاشة الترحيب إلى المحتوى الرئيسي عند الضغط على زر التخطي
-        skipButton.addEventListener('click', () => {
-            showMainContent();
-        });
+        // نوع الاستجابة قد يكون HTML (iframe جاهز) أو JSON يحوي url/iframe
+        const ct = res.headers.get('content-type') || '';
+        if (ct.includes('text/html')) {
+          const html = await res.text();
+          playerEl.innerHTML = html; // يحتوي على iframe كامل
+          setStatus('تم التحميل (HTML/iframe)');
+          return extractIframeSrc(html);
+        } else {
+          const text = await res.text();
+          let data = null;
+          try { data = JSON.parse(text); } catch (_) {}
 
-
-        // إنشاء أزرار المحاضرات
-        function createLectureButtons() {
-            // إفراغ الشبكة قبل إعادة الإنشاء لتجنب التكرار
-            lecturesGrid.innerHTML = '';
-            for (const title in lectureVideoIds) {
-                const videoId = lectureVideoIds[title];
-                const button = document.createElement('button');
-                button.className = 'lecture-btn flex items-center justify-between p-4 rounded-lg font-semibold text-lg transition-all duration-200';
-                button.setAttribute('data-videoid', videoId);
-                button.setAttribute('data-title', title);
-                button.innerHTML = `
-                    <span>${title}</span>
-                    <i data-lucide="play-circle" class="w-6 h-6 text-indigo-400"></i>
-                `;
-                button.addEventListener('click', (event) => handleLectureClick(event.currentTarget));
-                lecturesGrid.appendChild(button);
-            }
-            // إعادة تهيئة الأيقونات التي تم إضافتها
-            lucide.createIcons();
+          if (data && (data.url || (data.data && data.data.url))) {
+            const url = data.url || data.data.url;
+            playerEl.innerHTML = makeIframe(url);
+            setStatus('تم التحميل (JSON → url)');
+            return url;
+          } else if (data && (data.iframe || (data.data && data.data.iframe))) {
+            const iframe = data.iframe || data.data.iframe;
+            playerEl.innerHTML = iframe;
+            setStatus('تم التحميل (JSON → iframe)');
+            return extractIframeSrc(iframe);
+          } else {
+            playerEl.innerHTML = '<div style="padding:20px">لم يتم العثور على رابط فيديو في استجابة الخادم.</div>';
+            setStatus('فشل: لا يوجد رابط');
+            return null;
+          }
         }
+      } catch (e) {
+        console.error(e);
+        playerEl.innerHTML = '<div style="padding:20px">تعذر الاتصال بالخادم. تحقق من الإنترنت أو السماح بالمجال.</div>';
+        setStatus('خطأ شبكة');
+        return null;
+      }
+    }
 
-        // إظهار/إخفاء قسم المحاضرات عند الضغط على اسم المدرس
-        teacherName.addEventListener('click', () => {
-            if (lecturesSection.classList.contains('hidden')) {
-                lecturesSection.classList.remove('hidden');
-            } else {
-                lecturesSection.classList.add('hidden');
-            }
-        });
+    function makeIframe(src) {
+      const safe = String(src).replace(/"/g, '&quot;');
+      return <iframe src="${safe}" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>;
+    }
 
-        // معالج النقر على زر المحاضرة
-        async function handleLectureClick(button) {
-            const videoId = button.getAttribute('data-videoid');
-            const lectureTitle = button.getAttribute('data-title');
+    function extractIframeSrc(html) {
+      const m = String(html).match(/<iframe[^>]*src=["']([^"']+)["']/i);
+      return m ? m[1] : null;
+    }
 
-            if (!videoId || videoId.includes('example')) {
-                // استخدام رسالة داخل الموقع بدلاً من alert
-                const errorMessage = "عذراً، هذا الفيديو غير متوفر حالياً.";
-                displayMessageBox(errorMessage);
-                return;
-            }
-
-            // إظهار قسم مشغل الفيديو وإخفاء قائمة المحاضرات مؤقتاً
-            videoPlayerSection.classList.remove('hidden');
-            lecturesSection.classList.add('hidden');
-            currentLectureTitle.textContent = lectureTitle;
-
-            // إظهار رسالة التحميل
-            loadingMessage.style.display = 'flex';
-            videoIframe.src = ''; // مسح أي محتوى سابق
-
-            try {
-                // تعديل: استخدام الرابط الصحيح الذي أرسلته سابقًا، مع التأكد من أن الطلب ينجح.
-                // تم إدخال 'content-type' لتلبية متطلبات الخادم.
-                const response = await fetch('https://dark-mode-23c9.hmyzc824-d08.workers.dev/', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ videoid: videoId })
-                });
-
-                if (!response.ok) {
-                    throw new Error('فشل في جلب رابط الفيديو من الخادم.');
-                }
-
-                // استقبال نص الاستجابة الذي يحتوي على iframe كامل
-                const iframeText = await response.text();
-
-                // استخراج رابط الفيديو من الخاصية `src` باستخدام RegExp
-                const srcMatch = iframeText.match(/src="(.*?)"/);
-                if (srcMatch && srcMatch[1]) {
-                    const videoSrc = srcMatch[1];
-                    // إخفاء رسالة التحميل وتعيين رابط الفيديو للمشغل
-                    loadingMessage.style.display = 'none';
-                    videoIframe.src = videoSrc;
-                } else {
-                    throw new Error('لم يتم العثور على رابط الفيديو في الاستجابة.');
-                }
-
-            } catch (error) {
-                loadingMessage.style.display = 'none';
-                displayMessageBox('حدث خطأ: ' + error.message);
-                console.error(error);
-                // إخفاء مشغل الفيديو وإرجاع قائمة المحاضرات
-                videoPlayerSection.classList.add('hidden');
-                lecturesSection.classList.remove('hidden');
-            }
+    // نسخ رابط التشغيل بعد الجلب
+    copyBtn.addEventListener('click', async () => {
+      setStatus('جارٍ نسخ الرابط…');
+      const currentIframe = playerEl.querySelector('iframe');
+      let url = currentIframe ? currentIframe.getAttribute('src') : null;
+      if (!url) {
+        // حاول الجلب أولاً إذا ماكو مشغل
+        url = await fetchFromWorker();
+      }
+      if (url) {
+        try {
+          await navigator.clipboard.writeText(url);
+          setStatus('تم نسخ الرابط ✅');
+        } catch (_) {
+          setStatus('انسخ يدويًا: ' + url);
+          alert(url);
         }
-    
-        // دالة لعرض رسالة خطأ مخصصة بدلاً من alert
-        function displayMessageBox(message) {
-            const messageBox = document.createElement('div');
-            messageBox.className = 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-red-600 text-white font-bold p-6 rounded-xl shadow-2xl transition-all duration-300 transform scale-0';
-            messageBox.textContent = message;
-            document.body.appendChild(messageBox);
-            
-            setTimeout(() => {
-                messageBox.style.transform = 'translate(-50%, -50%) scale(1)';
-            }, 10);
+      }
+    });
 
-            setTimeout(() => {
-                messageBox.style.transform = 'translate(-50%, -50%) scale(0)';
-                setTimeout(() => messageBox.remove(), 300);
-            }, 3000);
-        }
-    </script>
-</body>
+    // تشغيل عند الضغط
+    playBtn.addEventListener('click', fetchFromWorker);
+  </script></body>
 </html>
