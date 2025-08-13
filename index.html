@@ -176,6 +176,8 @@
             </path>
           </svg>
         `;
+      } else {
+        playerEl.innerHTML = 'سيظهر المشغل هنا بعد جلب الرابط…';
       }
     }
 
@@ -202,6 +204,18 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ videoId: FIXED_VIDEO_ID, expiryMinutes: EXPIRY_MIN })
         });
+        
+        // تم إضافة معالجة الأخطاء هنا
+        if (!res.ok) {
+          if (res.status === 403) {
+            setStatus('فشل: تم رفض الوصول. قد يكون الفيديو محميًا.');
+            playerEl.innerHTML = '<div style="padding:20px">خطأ 403: تم رفض الوصول. قد يكون الفيديو محميًا أو يتطلب مصادقة.</div>';
+          } else {
+            setStatus(`فشل: خطأ في الخادم (${res.status}).`);
+            playerEl.innerHTML = `<div style="padding:20px">خطأ في الخادم: (${res.status}) - ${res.statusText}. يرجى التحقق من الخادم.</div>`;
+          }
+          return null;
+        }
 
         const ct = res.headers.get('content-type') || '';
         if (ct.includes('text/html')) {
@@ -253,10 +267,11 @@
       }
       if (url) {
         try {
+          // استخدام Clipboard API لنسخ الرابط
           await navigator.clipboard.writeText(url);
           setStatus('تم نسخ الرابط ✅');
         } catch (_) {
-          // تم التعديل هنا: استخدام رسالة مخصصة بدلاً من alert
+          // استخدام رسالة مخصصة إذا فشل النسخ التلقائي
           showModal('تعذر النسخ التلقائي. يرجى نسخ الرابط يدويًا من هنا: ' + url);
           setStatus('انسخ يدويًا: ' + url);
         }
