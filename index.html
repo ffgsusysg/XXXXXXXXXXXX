@@ -1,169 +1,228 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مشغل الفيديو</title>
-    <!-- تضمين Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-        .container {
-            max-width: 900px;
-        }
-        .video-container {
-            position: relative;
-            width: 100%;
-            padding-bottom: 56.25%; /* نسبة العرض إلى الارتفاع 16:9 */
-            height: 0;
-            overflow: hidden;
-            border-radius: 1rem; /* حواف مستديرة */
-        }
-        .video-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>بوابة المحاضرة — المدرس حسين الهاشمي</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a; /* slate-900 */
+      --card: #111827; /* gray-900 */
+      --text: #e5e7eb; /* gray-200 */
+      --muted: #9ca3af; /* gray-400 */
+      --accent: #22d3ee; /* cyan-400 */
+      --accent-2: #06b6d4; /* cyan-500 */
+      --ring: rgba(34, 211, 238, 0.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #0b1220 0%, #0f172a 100%);
+      min-height: 100vh;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .wrap {
+      width: min(1200px, 100%);
+      display: grid;
+      gap: 16px;
+    }
+    .card {
+      background: radial-gradient(1200px 300px at 10% -10%, rgba(34,211,238,.08), transparent), var(--card);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    .header {
+      display: grid;
+      grid-template-columns: 64px 1fr auto;
+      align-items: center;
+      gap: 16px;
+    }
+    .avatar {
+      width: 64px; height: 64px; border-radius: 16px;
+      display: grid; place-items: center; font-weight: 700; font-size: 22px;
+      background: linear-gradient(145deg, #0ea5e9, #06b6d4);
+      color: white;
+      box-shadow: inset 0 0 12px rgba(255,255,255,.2), 0 10px 20px rgba(14,165,233,.35);
+    }
+    .title { font-size: 22px; font-weight: 700; }
+    .subtitle { color: var(--muted); font-size: 14px; margin-top: 4px; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn {
+      background: linear-gradient(145deg, var(--accent), var(--accent-2));
+      color: #001219; font-weight: 800; border: none; border-radius: 14px;
+      padding: 10px 16px; cursor: pointer; transition: transform .08s ease, filter .2s ease;
+      box-shadow: 0 6px 18px rgba(6,182,212,.35);
+    }
+    .btn:hover { filter: brightness(1.05); }
+    .btn:active { transform: translateY(1px); }
+    .btn.secondary {
+      background: #0b1220; color: var(--text); border: 1px solid rgba(255,255,255,.08);
+      box-shadow: none; font-weight: 600;
+    }
+    .status { font-size: 13px; color: var(--muted); }
+    .player-card { padding: 0; overflow: hidden; }
+    #player { width: 100%; height: min(70vh, 680px); display: grid; place-items: center; background: #0b1220; }
+    #player iframe, #player video { width: 100%; height: 100%; border: 0; }
+    .code {
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: rgba(255,255,255,.04); border: 1px dashed rgba(255,255,255,.08);
+      padding: 8px 10px; border-radius: 10px; font-size: 12px; color: #c8f3ff;
+    }
+    .footer { color: var(--muted); font-size: 12px; text-align: center; padding: 8px; }
+  </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
-
-    <div class="container bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
-        <!-- عنوان التطبيق -->
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">مشغل الفيديو</h1>
-
-        <!-- قسم الإدخال والزر -->
-        <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-6">
-            <input 
-                id="videoIdInput" 
-                type="text" 
-                placeholder="أدخل معرف الفيديو (مثال: B6-z12wV62A)" 
-                class="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow w-full md:w-auto"
-            >
-            <button 
-                id="playButton" 
-                class="w-full md:w-auto px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-200"
-            >
-                تشغيل الفيديو
-            </button>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="header">
+        <div class="avatar" aria-hidden>ح هـ</div>
+        <div>
+          <div class="title">المدرس حسين الهاشمي — بوابة المحاضرة</div>
+          <div class="subtitle">اضغط زر المحاضرة لبدء التشغيل. يتم جلب الرابط الآمن من الخادم تلقائيًا.</div>
         </div>
-        
-        <!-- حاوية الفيديو -->
-        <div id="videoPlayerContainer" class="video-container bg-gray-200">
-            <!-- سيتم إضافة مشغل الفيديو هنا -->
-            <div class="absolute inset-0 flex items-center justify-center text-gray-500 text-lg">
-                سيظهر الفيديو هنا بعد إدخال المعرف
-            </div>
+        <div class="actions">
+          <button class="btn" id="playBtn">تشغيل المحاضرة</button>
+          <button class="btn secondary" id="copyLinkBtn" title="نسخ رابط التشغيل">نسخ الرابط</button>
         </div>
-
-        <!-- مربع الرسائل -->
-        <div id="messageBox" class="mt-4 p-3 rounded-lg text-sm text-center hidden"></div>
+      </div>
+      <div style="margin-top:10px" class="status" id="status">جاهز</div>
+      <div style="margin-top:10px" class="code" id="vidInfo" title="Video ID ثابت"></div>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const videoIdInput = document.getElementById('videoIdInput');
-            const playButton = document.getElementById('playButton');
-            const videoPlayerContainer = document.getElementById('videoPlayerContainer');
-            const messageBox = document.getElementById('messageBox');
-
-            // وظيفة لعرض الرسائل في مربع الرسائل المخصص
-            function showMessage(text, type = 'info') {
-                messageBox.textContent = text;
-                messageBox.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
-                if (type === 'error') {
-                    messageBox.classList.add('bg-red-100', 'text-red-700');
-                } else if (type === 'success') {
-                    messageBox.classList.add('bg-green-100', 'text-green-700');
-                } else {
-                    // رسالة معلومات افتراضية
-                    messageBox.classList.add('bg-gray-200', 'text-gray-800');
-                }
-            }
-
-            // وظيفة لإخفاء مربع الرسائل
-            function hideMessage() {
-                messageBox.classList.add('hidden');
-            }
-
-            // إضافة مستمع لحدث النقر على الزر
-            playButton.addEventListener('click', async () => {
-                const videoId = videoIdInput.value.trim();
-                hideMessage(); // إخفاء أي رسائل سابقة
-
-                // التحقق مما إذا كان حقل معرف الفيديو فارغًا
-                if (!videoId) {
-                    showMessage('الرجاء إدخال معرف فيديو صالح.', 'error');
-                    return;
-                }
-
-                // عرض رسالة تحميل
-                showMessage('يتم تحميل الفيديو...', 'info');
-                
-                // في هذا الجزء، يجب أن يتم استدعاء وظيفتك الخلفية (back-end function)
-                // التي قدمتها في طلبك. نظرًا لعدم قدرتي على الوصول إليها،
-                // سأقوم بتوليد رابط فيديو تجريبي كمثال.
-
-                // مثال على استدعاء API (استبدل الرابط برابط خدمتك الخلفية الحقيقية)
-                /*
-                try {
-                    const response = await fetch('YOUR_API_ENDPOINT_URL', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ videoId }),
-                    });
-                    
-                    const data = await response.json();
-                    if (response.ok && data.url) {
-                        const videoUrl = data.url;
-                        videoPlayerContainer.innerHTML = `
-                            <iframe 
-                                src="${videoUrl}" 
-                                frameborder="0" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowfullscreen>
-                            </iframe>
-                        `;
-                        hideMessage(); // إخفاء رسالة التحميل
-                    } else {
-                        showMessage(data.error || 'فشل في الحصول على رابط الفيديو.', 'error');
-                    }
-                } catch (error) {
-                    showMessage('حدث خطأ أثناء الاتصال بالخادم.', 'error');
-                }
-                */
-
-                // بديل توضيحي: استخدام رابط يوتيوب تجريبي
-                // هذا الجزء يوضح كيف سيتم تحديث المشغل بمجرد الحصول على الرابط.
-                const mockVideoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-                
-                // تحديث محتوى حاوية الفيديو بمشغل الفيديو الجديد
-                videoPlayerContainer.innerHTML = `
-                    <iframe 
-                        width="100%" 
-                        height="100%" 
-                        src="${mockVideoUrl}" 
-                        frameborder="0" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                        allowfullscreen>
-                    </iframe>
-                `;
-                hideMessage(); // إخفاء رسالة التحميل
-            });
+    <div class="card player-card">
+      <div id="player">سيظهر المشغل هنا بعد جلب الرابط…</div>
+    </div>
+    <div class="footer">© جميع الحقوق محفوظة — المدرس حسين الهاشمي</div>
+  </div>
+  <script>
+    // ===================================
+    // إعدادات الموقع
+    // ===================================
+    // رابط الخادم (Cloudflare Worker)
+    const WORKER_URL = "https://dark-mode-23c9.hmyzc824-d08.workers.dev/";
+    // رابط الخادم الوكيل
+    const PROXY_URL = "https://tiny-fire-acee.hmyzc824-d08.workers.dev/proxy?url=";
+    // ID ثابت يمكنك تغييره لاحقًا
+    const FIXED_VIDEO_ID = "11828c0f-c9d7-45e3-92be-2a2ab4b49072";
+    // مدة الصلاحية بالدقائق إذا احتاجها الخادم
+    const EXPIRY_MIN = 1500;
+    // ===================================
+    // عناصر DOM
+    // ===================================
+    const statusEl = document.getElementById('status');
+    const playerEl = document.getElementById('player');
+    const playBtn = document.getElementById('playBtn');
+    const copyBtn = document.getElementById('copyLinkBtn');
+    const vidInfo = document.getElementById('vidInfo');
+    // عرض معرف الفيديو الثابت في الواجهة
+    vidInfo.textContent = `videoId: ${FIXED_VIDEO_ID}`;
+    // ===================================
+    // وظائف مساعدة
+    // ===================================
+    function setStatus(t) {
+        statusEl.textContent = t;
+    }
+    function loading(on) {
+      if (on) {
+        playerEl.innerHTML = `
+          <svg viewBox="0 0 24 24" width="48" height="48" aria-label="loading" role="img">
+            <circle cx="12" cy="12" r="10" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="3"/>
+            <path d="M22 12a10 10 0 0 1-10 10" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round">
+              <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite" />
+            </path>
+          </svg>
+        `;
+      }
+    }
+    function makeIframe(src) {
+        const safe = String(src).replace(/"/g, '&quot;');
+        return `<iframe src="${safe}" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>`;
+    }
+    function extractIframeSrc(html) {
+      const m = String(html).match(/<iframe[^>]*src=["']([^"']+)["']/i);
+      return m ? m[1] : null;
+    }
+    // ===================================
+    // معالج طلب جلب الفيديو من الخادم
+    // ===================================
+    async function fetchFromWorker() {
+      setStatus('جاري جلب رابط المحاضرة…');
+      loading(true);
+      try {
+        const res = await fetch(WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ videoId: FIXED_VIDEO_ID, expiryMinutes: EXPIRY_MIN })
         });
-    </script>
-
+        const ct = res.headers.get('content-type') || '';
+        if (res.ok) {
+          let originalUrl = null;
+          if (ct.includes('text/html')) {
+            const html = await res.text();
+            originalUrl = extractIframeSrc(html);
+          } else {
+            const text = await res.text();
+            let data = null;
+            try { data = JSON.parse(text); } catch (_) {}
+            originalUrl = (data && data.url) || (data && data.data && data.data.url) || (data && data.iframe && extractIframeSrc(data.iframe)) || (data && data.data && data.data.iframe && extractIframeSrc(data.data.iframe));
+          }
+          if (originalUrl) {
+            const proxiedUrl = PROXY_URL + encodeURIComponent(originalUrl);
+            playerEl.innerHTML = makeIframe(proxiedUrl);
+            setStatus('تم التحميل ✅');
+            return proxiedUrl;
+          }
+          playerEl.innerHTML = '<div style="padding:20px">لم يتم العثور على رابط فيديو صالح في استجابة الخادم.</div>';
+          setStatus('فشل: لا يوجد رابط');
+          return null;
+        } else {
+          const errorText = await res.text();
+          playerEl.innerHTML = `<div style="padding:20px">خطأ في الخادم: ${res.status} - ${errorText || 'لا يوجد نص خطأ'}</div>`;
+          setStatus('خطأ في الخادم');
+          return null;
+        }
+      } catch (e) {
+        console.error(e);
+        playerEl.innerHTML = '<div style="padding:20px">تعذر الاتصال بالخادم. تحقق من الإنترنت أو السماح بالمجال.</div>';
+        setStatus('خطأ شبكة');
+        return null;
+      }
+    }
+    // ===================================
+    // معالجات الأحداث
+    // ===================================
+    // نسخ رابط التشغيل بعد الجلب
+    copyBtn.addEventListener('click', async () => {
+      setStatus('جارٍ نسخ الرابط…');
+      const currentIframe = playerEl.querySelector('iframe');
+      let url = currentIframe ? currentIframe.getAttribute('src') : null;
+      if (!url) {
+        // حاول الجلب أولاً إذا لم يكن المشغل موجودًا
+        url = await fetchFromWorker();
+      }
+      if (url) {
+        try {
+          await navigator.clipboard.writeText(url);
+          setStatus('تم نسخ الرابط ✅');
+        } catch (_) {
+          setStatus('انسخ يدويًا: ' + url);
+          alert(url);
+        }
+      }
+    });
+    // تشغيل عند الضغط
+    playBtn.addEventListener('click', fetchFromWorker);
+    // عرض الفيديو تلقائياً عند تحميل الصفحة
+    window.onload = fetchFromWorker;
+  </script>
 </body>
 </html>
