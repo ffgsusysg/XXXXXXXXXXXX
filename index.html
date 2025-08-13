@@ -1,240 +1,215 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>بوابة المحاضرة — المدرس حسين الهاشمي</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #0f172a; /* slate-900 */
-      --card: #111827; /* gray-900 */
-      --text: #e5e7eb; /* gray-200 */
-      --muted: #9ca3af; /* gray-400 */
-      --accent: #22d3ee; /* cyan-400 */
-      --accent-2: #06b6d4; /* cyan-500 */
-      --ring: rgba(34, 211, 238, 0.35);
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: linear-gradient(180deg, #0b1220 0%, #0f172a 100%);
-      min-height: 100vh;
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-    }
-    .wrap {
-      width: min(1200px, 100%);
-      display: grid;
-      gap: 16px;
-    }
-    .card {
-      background: radial-gradient(1200px 300px at 10% -10%, rgba(34,211,238,.08), transparent), var(--card);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 18px;
-      padding: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.35);
-    }
-    .header {
-      display: grid;
-      grid-template-columns: 64px 1fr auto;
-      align-items: center;
-      gap: 16px;
-    }
-    .avatar {
-      width: 64px; height: 64px; border-radius: 16px;
-      display: grid; place-items: center; font-weight: 700; font-size: 22px;
-      background: linear-gradient(145deg, #0ea5e9, #06b6d4);
-      color: white;
-      box-shadow: inset 0 0 12px rgba(255,255,255,.2), 0 10px 20px rgba(14,165,233,.35);
-    }
-    .title { font-size: 22px; font-weight: 700; }
-    .subtitle { color: var(--muted); font-size: 14px; margin-top: 4px; }
-    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .btn {
-      background: linear-gradient(145deg, var(--accent), var(--accent-2));
-      color: #001219; font-weight: 800; border: none; border-radius: 14px;
-      padding: 10px 16px; cursor: pointer; transition: transform .08s ease, filter .2s ease;
-      box-shadow: 0 6px 18px rgba(6,182,212,.35);
-    }
-    .btn:hover { filter: brightness(1.05); }
-    .btn:active { transform: translateY(1px); }
-    .btn.secondary {
-      background: #0b1220; color: var(--text); border: 1px solid rgba(255,255,255,.08);
-      box-shadow: none; font-weight: 600;
-    }
-    .status { font-size: 13px; color: var(--muted); }
-    .player-card { padding: 0; overflow: hidden; }
-    #player { width: 100%; height: min(70vh, 680px); display: grid; place-items: center; background: #0b1220; }
-    #player iframe, #player video { width: 100%; height: 100%; border: 0; }
-    .code {
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      background: rgba(255,255,255,.04); border: 1px dashed rgba(255,255,255,.08);
-      padding: 8px 10px; border-radius: 10px; font-size: 12px; color: #c8f3ff;
-    }
-    .footer { color: var(--muted); font-size: 12px; text-align: center; padding: 8px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>King-of-Knowledge Player</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+
+        :root {
+            --primary-bg: #1a1a1a;
+            --secondary-bg: #2b2b2b;
+            --text-color: #f0f0f0;
+            --accent-color: #4a90e2;
+            --border-color: #444;
+            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            --transition-speed: 0.3s;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 900px;
+            background-color: var(--secondary-bg);
+            border-radius: 15px;
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent-color);
+            direction: rtl;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: all var(--transition-speed) ease-in-out;
+            direction: ltr;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 8px rgba(74, 144, 226, 0.5);
+        }
+
+        .input-group button {
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background-color: var(--accent-color);
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color var(--transition-speed) ease-in-out;
+        }
+
+        .input-group button:hover {
+            background-color: #3a7bd5;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            background-color: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            display: none; /* Hide by default */
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .info-message {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #aaa;
+            direction: rtl;
+        }
+    </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <div class="header">
-        <div class="avatar" aria-hidden>ح هـ</div>
-        <div>
-          <div class="title">المدرس حسين الهاشمي — بوابة المحاضرة</div>
-          <div class="subtitle">اضغط زر المحاضرة لبدء التشغيل. يتم جلب الرابط الآمن من الخادم تلقائيًا.</div>
+
+<div class="container">
+    <header>
+        <h1>مشغل فيديو KOK</h1>
+    </header>
+
+    <div class="input-group">
+        <input type="text" id="videoLinkInput" placeholder="الصق رابط الفيديو هنا...">
+        <button id="loadVideoButton">تشغيل الفيديو</button>
+    </div>
+
+    <div class="video-container" id="videoPlayerContainer">
         </div>
-        <div class="actions">
-          <button class="btn" id="playBtn">تشغيل المحاضرة</button>
-          <button class="btn secondary" id="copyLinkBtn" title="نسخ رابط التشغيل">نسخ الرابط</button>
-        </div>
-      </div>
-      <div style="margin-top:10px" class="status" id="status">جاهز</div>
-      <div style="margin-top:10px" class="code" id="vidInfo" title="Video ID ثابت"></div>
-    </div><div class="card player-card">
-  <div id="player">سيظهر المشغل هنا بعد جلب الرابط…</div>
+
+    <div class="info-message" id="infoMessage">أدخل رابط فيديو من Bunny Stream لعرضه.</div>
 </div>
 
-<div class="footer">© جميع الحقوق محفوظة — المدرس حسين الهاشمي</div>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const videoLinkInput = document.getElementById('videoLinkInput');
+        const loadVideoButton = document.getElementById('loadVideoButton');
+        const videoPlayerContainer = document.getElementById('videoPlayerContainer');
+        const infoMessage = document.getElementById('infoMessage');
 
-  </div>
-  <script>
-    // ===================================
-    // إعدادات الموقع
-    // ===================================
-    // رابط الخادم (Cloudflare Worker)
-    const WORKER_URL = "https://dark-mode-23c9.hmyzc824-d08.workers.dev/";
-    // ID ثابت يمكنك تغييره لاحقًا
-    const FIXED_VIDEO_ID = "11828c0f-c9d7-45e3-92be-2a2ab4b49072";
-    // مدة الصلاحية بالدقائق إذا احتاجها الخادم
-    const EXPIRY_MIN = 1500;
+        // رابط البروكسي الخاص بك، تأكد من استبداله بالرابط الفعلي إذا كان مختلفًا
+        const PROXY_URL = 'https://dark-mode-23c9.hmyzc824-d08.workers.dev/';
 
-    // ===================================
-    // عناصر DOM
-    // ===================================
-    const statusEl = document.getElementById('status');
-    const playerEl = document.getElementById('player');
-    const playBtn = document.getElementById('playBtn');
-    const copyBtn = document.getElementById('copyLinkBtn');
-    const vidInfo = document.getElementById('vidInfo');
+        // دالة لترميز الرابط باستخدام Base64
+        function encodeUrlToBase64(url) {
+            try {
+                return btoa(url);
+            } catch (e) {
+                console.error("Failed to encode URL to Base64:", e);
+                return encodeURIComponent(url); // Fallback to URL encoding
+            }
+        }
 
-    // عرض معرف الفيديو الثابت في الواجهة
-    vidInfo.textContent = `videoId: ${FIXED_VIDEO_ID}`;
+        // دالة تحميل الفيديو
+        function loadVideo() {
+            const videoLink = videoLinkInput.value.trim();
 
-    // ===================================
-    // وظائف مساعدة
-    // ===================================
-    function setStatus(t) {
-        statusEl.textContent = t;
-    }
+            if (!videoLink) {
+                alert('الرجاء إدخال رابط الفيديو.');
+                return;
+            }
 
-    function loading(on) {
-      if (on) {
-        playerEl.innerHTML = `
-          <svg viewBox="0 0 24 24" width="48" height="48" aria-label="loading" role="img">
-            <circle cx="12" cy="12" r="10" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="3"/>
-            <path d="M22 12a10 10 0 0 1-10 10" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round">
-              <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite" />
-            </path>
-          </svg>
-        `;
-      }
-    }
+            // ترميز رابط الفيديو
+            const encodedUrl = encodeUrlToBase64(videoLink);
+            
+            // إنشاء رابط البروكسي الكامل
+            const fullProxyUrl = `${PROXY_URL}player?url=${encodedUrl}`;
 
-    function makeIframe(src) {
-        const safe = String(src).replace(/"/g, '&quot;');
-        return `<iframe src="${safe}" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>`;
-    }
+            // إزالة أي محتوى موجود
+            videoPlayerContainer.innerHTML = '';
 
-    function extractIframeSrc(html) {
-      const m = String(html).match(/<iframe[^>]*src=["']([^"']+)["']/i);
-      return m ? m[1] : null;
-    }
+            // إنشاء iframe جديد
+            const iframe = document.createElement('iframe');
+            iframe.src = fullProxyUrl;
+            iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+            iframe.allowFullscreen = true;
 
-    // ===================================
-    // معالج طلب جلب الفيديو من الخادم
-    // ===================================
-    async function fetchFromWorker() {
-      setStatus('جاري جلب رابط المحاضرة…');
-      loading(true);
-      try {
-        const res = await fetch(WORKER_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ videoId: FIXED_VIDEO_ID, expiryMinutes: EXPIRY_MIN })
+            // إضافة iframe إلى الحاوية
+            videoPlayerContainer.appendChild(iframe);
+            videoPlayerContainer.style.display = 'block'; // عرض الحاوية
+
+            // إخفاء رسالة المعلومات
+            infoMessage.style.display = 'none';
+        }
+
+        // الاستماع لحدث الضغط على الزر
+        loadVideoButton.addEventListener('click', loadVideo);
+
+        // الاستماع لضغط زر Enter في حقل الإدخال
+        videoLinkInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                loadVideo();
+            }
         });
-
-        const ct = res.headers.get('content-type') || '';
-        if (ct.includes('text/html')) {
-          const html = await res.text();
-          playerEl.innerHTML = html;
-          setStatus('تم التحميل ✅');
-          return extractIframeSrc(html);
-        } else {
-          const text = await res.text();
-          let data = null;
-          try { data = JSON.parse(text); } catch (_) {}
-
-          if (data && (data.url || (data.data && data.data.url))) {
-            const url = data.url || data.data.url;
-            playerEl.innerHTML = makeIframe(url);
-            setStatus('تم التحميل ✅');
-            return url;
-          } else if (data && (data.iframe || (data.data && data.data.iframe))) {
-            const iframe = data.iframe || data.data.iframe;
-            playerEl.innerHTML = iframe;
-            setStatus('تم التحميل ✅');
-            return extractIframeSrc(iframe);
-          } else {
-            playerEl.innerHTML = '<div style="padding:20px">لم يتم العثور على رابط فيديو في استجابة الخادم.</div>';
-            setStatus('فشل: لا يوجد رابط');
-            return null;
-          }
-        }
-      } catch (e) {
-        console.error(e);
-        playerEl.innerHTML = '<div style="padding:20px">تعذر الاتصال بالخادم. تحقق من الإنترنت أو السماح بالمجال.</div>';
-        setStatus('خطأ شبكة');
-        return null;
-      }
-    }
-
-    // ===================================
-    // معالجات الأحداث
-    // ===================================
-
-    // نسخ رابط التشغيل بعد الجلب
-    copyBtn.addEventListener('click', async () => {
-      setStatus('جارٍ نسخ الرابط…');
-      const currentIframe = playerEl.querySelector('iframe');
-      let url = currentIframe ? currentIframe.getAttribute('src') : null;
-      if (!url) {
-        // حاول الجلب أولاً إذا ماكو مشغل
-        url = await fetchFromWorker();
-      }
-      if (url) {
-        try {
-          await navigator.clipboard.writeText(url);
-          setStatus('تم نسخ الرابط ✅');
-        } catch (_) {
-          setStatus('انسخ يدويًا: ' + url);
-          // هنا يمكنك استخدام رسالة مخصصة بدلاً من alertt
-          alert(url);
-        }
-      }
     });
+</script>
 
-    // تشغيل عند الضغط
-    playBtn.addEventListener('click', fetchFromWorker);
-
-    // عرض الفيديو تلقائياً عند تحميل الصفحة
-    window.onload = fetchFromWorker;
-  </script>
 </body>
 </html>
