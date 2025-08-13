@@ -72,7 +72,7 @@
     .status { font-size: 13px; color: var(--muted); }
     .player-card { padding: 0; overflow: hidden; }
     #player { width: 100%; height: min(70vh, 680px); display: grid; place-items: center; background: #0b1220; }
-    #player iframe, #player video { width: 100%; height: 100%; border: 0; }
+    #player video { width: 100%; height: 100%; border: 0; border-radius: 14px; }
     .code {
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       background: rgba(255,255,255,.04); border: 1px dashed rgba(255,255,255,.08);
@@ -97,24 +97,21 @@
       </div>
       <div style="margin-top:10px" class="status" id="status">جاهز</div>
       <div style="margin-top:10px" class="code" id="vidInfo" title="Video ID ثابت"></div>
-    </div><div class="card player-card">
-  <div id="player">سيظهر المشغل هنا بعد جلب الرابط…</div>
-</div>
-
-<div class="footer">© جميع الحقوق محفوظة — المدرس حسين الهاشمي</div>
-
+    </div>
+    <div class="card player-card">
+      <div id="player">سيظهر المشغل هنا بعد جلب الرابط…</div>
+    </div>
+    <div class="footer">© جميع الحقوق محفوظة — المدرس حسين الهاشمي</div>
   </div>
   <script>
     // ===================================
     // إعدادات الموقع
     // ===================================
     // رابط الخادم (Cloudflare Worker)
-    const WORKER_URL = "https://dark-mode-23c9.hmyzc824-d08.workers.dev/";
+    const WORKER_URL = "https://dark-mode-23c9.hmyzc824-d08.workers.dev";
     // ID ثابت يمكنك تغييره لاحقًا
     const FIXED_VIDEO_ID = "11828c0f-c9d7-45e3-92be-2a2ab4b49072";
-    // مدة الصلاحية بالدقائق إذا احتاجها الخادم
-    const EXPIRY_MIN = 1500;
-
+    
     // ===================================
     // عناصر DOM
     // ===================================
@@ -123,6 +120,9 @@
     const playBtn = document.getElementById('playBtn');
     const copyBtn = document.getElementById('copyLinkBtn');
     const vidInfo = document.getElementById('vidInfo');
+    
+    // متغير لتخزين رابط الفيديو الذي تم إنشاؤه من الـ Worker
+    let videoStreamUrl = null;
 
     // عرض معرف الفيديو الثابت في الواجهة
     vidInfo.textContent = `videoId: ${FIXED_VIDEO_ID}`;
@@ -135,74 +135,61 @@
     }
 
     function loading(on) {
-      if (on) {
-        playerEl.innerHTML = `
-          <svg viewBox="0 0 24 24" width="48" height="48" aria-label="loading" role="img">
-            <circle cx="12" cy="12" r="10" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="3"/>
-            <path d="M22 12a10 10 0 0 1-10 10" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round">
-              <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite" />
-            </path>
-          </svg>
-        `;
-      }
-    }
-
-    function makeIframe(src) {
-        const safe = String(src).replace(/"/g, '&quot;');
-        return `<iframe src="${safe}" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>`;
-    }
-
-    function extractIframeSrc(html) {
-      const m = String(html).match(/<iframe[^>]*src=["']([^"']+)["']/i);
-      return m ? m[1] : null;
+        if (on) {
+            playerEl.innerHTML = `
+                <svg viewBox="0 0 24 24" width="48" height="48" aria-label="loading" role="img">
+                    <circle cx="12" cy="12" r="10" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="3"/>
+                    <path d="M22 12a10 10 0 0 1-10 10" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round">
+                        <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite" />
+                    </path>
+                </svg>
+            `;
+        } else {
+            playerEl.innerHTML = `سيظهر المشغل هنا بعد جلب الرابط…`;
+        }
     }
 
     // ===================================
     // معالج طلب جلب الفيديو من الخادم
     // ===================================
-    async function fetchFromWorker() {
-      setStatus('جاري جلب رابط المحاضرة…');
-      loading(true);
-      try {
-        const res = await fetch(WORKER_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ videoId: FIXED_VIDEO_ID, expiryMinutes: EXPIRY_MIN })
-        });
+    async function fetchAndPlayVideo() {
+        setStatus('جاري جلب وتشغيل المحاضرة…');
+        loading(true);
+        try {
+            // الآن، الطلب إلى الـ Worker سيجلب الفيديو مباشرةً
+            videoStreamUrl = WORKER_URL;
 
-        const ct = res.headers.get('content-type') || '';
-        if (ct.includes('text/html')) {
-          const html = await res.text();
-          playerEl.innerHTML = html;
-          setStatus('تم التحميل ✅');
-          return extractIframeSrc(html);
-        } else {
-          const text = await res.text();
-          let data = null;
-          try { data = JSON.parse(text); } catch (_) {}
+            // إرسال الطلب POST إلى الـ Worker
+            const res = await fetch(videoStreamUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ videoId: FIXED_VIDEO_ID, expiryMinutes: 1500 })
+            });
 
-          if (data && (data.url || (data.data && data.data.url))) {
-            const url = data.url || data.data.url;
-            playerEl.innerHTML = makeIframe(url);
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(`فشل جلب الفيديو: ${res.statusText} - ${errorText}`);
+            }
+
+            // إنشاء عنصر <video> جديد وتشغيله
+            const videoElement = document.createElement('video');
+            videoElement.src = URL.createObjectURL(await res.blob());
+            videoElement.controls = true;
+            videoElement.autoplay = true;
+            videoElement.playsInline = true;
+            
+            playerEl.innerHTML = '';
+            playerEl.appendChild(videoElement);
+            
             setStatus('تم التحميل ✅');
-            return url;
-          } else if (data && (data.iframe || (data.data && data.data.iframe))) {
-            const iframe = data.iframe || data.data.iframe;
-            playerEl.innerHTML = iframe;
-            setStatus('تم التحميل ✅');
-            return extractIframeSrc(iframe);
-          } else {
-            playerEl.innerHTML = '<div style="padding:20px">لم يتم العثور على رابط فيديو في استجابة الخادم.</div>';
-            setStatus('فشل: لا يوجد رابط');
-            return null;
-          }
+            copyBtn.disabled = false;
+        } catch (e) {
+            console.error(e);
+            playerEl.innerHTML = `<div style="padding:20px">خطأ: ${e.message}</div>`;
+            setStatus('خطأ: ' + e.message);
+            loading(false);
+            copyBtn.disabled = true;
         }
-      } catch (e) {
-        console.error(e);
-        playerEl.innerHTML = '<div style="padding:20px">تعذر الاتصال بالخادم. تحقق من الإنترنت أو السماح بالمجال.</div>';
-        setStatus('خطأ شبكة');
-        return null;
-      }
     }
 
     // ===================================
@@ -211,30 +198,37 @@
 
     // نسخ رابط التشغيل بعد الجلب
     copyBtn.addEventListener('click', async () => {
-      setStatus('جارٍ نسخ الرابط…');
-      const currentIframe = playerEl.querySelector('iframe');
-      let url = currentIframe ? currentIframe.getAttribute('src') : null;
-      if (!url) {
-        // حاول الجلب أولاً إذا ماكو مشغل
-        url = await fetchFromWorker();
-      }
-      if (url) {
-        try {
-          await navigator.clipboard.writeText(url);
-          setStatus('تم نسخ الرابط ✅');
-        } catch (_) {
-          setStatus('انسخ يدويًا: ' + url);
-          // هنا يمكنك استخدام رسالة مخصصة بدلاً من alertt
-          alert(url);
+        if (videoStreamUrl) {
+            setStatus('جارٍ نسخ الرابط…');
+            try {
+                // هنا نقوم بنسخ رابط الـ Worker نفسه، حيث أنه يمثل مصدر الفيديو الآن
+                await navigator.clipboard.writeText(videoStreamUrl);
+                setStatus('تم نسخ الرابط ✅');
+            } catch (e) {
+                setStatus('فشل النسخ التلقائي. انسخ يدويًا: ' + videoStreamUrl);
+                const tempDiv = document.createElement('div');
+                tempDiv.textContent = videoStreamUrl;
+                document.body.appendChild(tempDiv);
+                const range = document.createRange();
+                range.selectNode(tempDiv);
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                document.body.removeChild(tempDiv);
+            }
+        } else {
+            setStatus('لا يوجد رابط للنسخ.');
         }
-      }
     });
 
     // تشغيل عند الضغط
-    playBtn.addEventListener('click', fetchFromWorker);
+    playBtn.addEventListener('click', fetchAndPlayVideo);
+    
+    // تعطيل زر النسخ في البداية
+    copyBtn.disabled = true;
 
     // عرض الفيديو تلقائياً عند تحميل الصفحة
-    window.onload = fetchFromWorker;
+    window.onload = fetchAndPlayVideo;
   </script>
 </body>
 </html>
