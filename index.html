@@ -160,7 +160,7 @@
         // ملاحظة: تم تحديث videoid للمحاضرة الأولى. بالنسبة للمحاضرات الأخرى، استخدم معرّفات حقيقية بدلاً من 'example'
         const lectureVideoIds = {
             'محاضرة 1': '11828c0f-c9d7-45e3-92be-2a2ab4b49072',
-            'محاضرة 2': '11828c0f-c9d7-45e3-92be-2a2ab4b49072',
+            'محاضرة 2': 'lecture2_id_example',
             'محاضرة 3': 'lecture3_id_example',
             'محاضرة 4': 'lecture4_id_example',
             'محاضرة 5': 'lecture5_id_example',
@@ -258,6 +258,8 @@
             videoIframe.src = ''; // مسح أي محتوى سابق
 
             try {
+                // تعديل: استخدام الرابط الصحيح الذي أرسلته سابقًا، مع التأكد من أن الطلب ينجح.
+                // تم إدخال 'content-type' لتلبية متطلبات الخادم.
                 const response = await fetch('https://dark-mode-23c9.hmyzc824-d08.workers.dev/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
