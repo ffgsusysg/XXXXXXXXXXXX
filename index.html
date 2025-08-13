@@ -3,384 +3,294 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>جلب المحاضرات - أداة متطورة</title>
-    <!-- تضمين مكتبة Tailwind CSS من خلال CDN لإضافة تصميم عصري ومؤثرات جميلة -->
+    <title>منصة أديسون</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
-        
         body {
-            font-family: 'Cairo', sans-serif;
-            background-color: #0d0d1a;
-        }
-        
-        /* إضافة مؤثرات متقدمة للزر */
-        .btn-primary {
-            background-image: linear-gradient(to right, #00c6ff, #0072ff);
-            box-shadow: 0 4px 15px rgba(0, 198, 255, 0.4);
-            transition: all 0.3s ease-in-out;
-            transform: scale(1);
-        }
-        
-        .btn-primary:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(0, 198, 255, 0.6);
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a1a;
+            color: #f3f4f6;
+            direction: rtl;
+            text-align: right;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
 
-        /* مؤثرات تحميل المحاضرات */
-        .lesson-item {
-            animation: fadeIn 0.5s ease-out forwards;
-            opacity: 0;
-            background: rgba(25, 30, 45, 0.5); /* خلفية شبه شفافة */
-            backdrop-filter: blur(10px); /* تأثير ضبابي */
-            border: 1px solid rgba(0, 198, 255, 0.2);
+        .container {
+            max-width: 900px;
+            width: 100%;
+            padding: 1.5rem;
+            margin: 0 1rem;
+            background-color: #2a2a2a;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-primary {
+            background-image: linear-gradient(to right, #4c51bf, #667eea);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            box-shadow: 0 4px 15px rgba(76, 81, 191, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 81, 191, 0.6);
+        }
+
+        .lecture-btn {
+            background-color: #3b3b3b;
+            border-left: 4px solid #6366f1;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .lecture-btn:hover {
+            background-color: #4b4b4b;
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Loading spinner */
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Hide content initially */
+        #splash-screen, #main-content {
+            display: none;
         }
         
-        .lesson-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 198, 255, 0.3);
-            border-color: rgba(0, 198, 255, 0.5);
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out forwards;
         }
         
-        /* مؤثرات تحميل الصفحة */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
-        /* جعل الألوان متناسقة مع تصميم الموقع */
-        .text-accent {
-            color: #00c6ff;
-        }
 
-        .border-accent {
-            border-color: #00c6ff;
-        }
-
-        /* تنسيق حاوية التنبيهات */
-        .alert-box.success {
-            background-color: #2e7d32;
-            border-color: #66bb6a;
-        }
-
-        .alert-box.error {
-            background-color: #c62828;
-            border-color: #ef5350;
-        }
-
-        /* تنسيق لعرض JSON */
-        .json-output-container {
-            position: relative;
-        }
-
-        .json-output {
-            background-color: #1a1a2e;
-            border-radius: 8px;
-            padding: 1rem;
-            max-height: 400px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.875rem;
-            text-align: left;
-            color: #f8f8f2;
-        }
-        
-        .json-output::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .json-output::-webkit-scrollbar-track {
-            background: #2d2d3e;
-            border-radius: 10px;
-        }
-
-        .json-output::-webkit-scrollbar-thumb {
-            background: #555;
-            border-radius: 10px;
-        }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-100 p-8 flex justify-center items-center min-h-screen">
+<body>
 
-    <div class="container bg-gray-800 bg-opacity-70 backdrop-blur-sm p-8 rounded-2xl shadow-xl max-w-lg w-full transform transition-transform duration-500 hover:scale-[1.01] animate-fadeIn border-2 border-gray-700">
-        
-        <h1 class="text-3xl md:text-4xl font-bold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-500">
-            📚 أداة جلب المحاضرات
-        </h1>
+    <!-- شاشة الترحيب -->
+    <div id="splash-screen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-gray-800 bg-opacity-70 backdrop-blur-md rounded-2xl p-8 max-w-lg text-center shadow-2xl animate-fade-in">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-indigo-400 mb-4 animate-pulse">منصة أديسون</h1>
+            <p class="text-lg sm:text-xl text-gray-200 leading-relaxed mb-8">
+                أهلاً وسهلاً بك في منصة أديسون التعليمية!
+                <br>
+                نتمنى لك رحلة علمية ممتعة.
+            </p>
+            <p class="text-md sm:text-lg text-gray-300 leading-snug mb-8">
+                لتبقى على اطلاع بآخر التحديثات والمحاضرات الجديدة، يرجى الانضمام إلى قناتنا على تيليجرام.
+            </p>
+            <button id="telegram-button" class="btn-primary flex items-center justify-center w-full px-8 py-4 rounded-full text-lg font-bold text-white transition-all">
+                <i data-lucide="send" class="ml-2 w-6 h-6"></i>
+                اشترك في قناة تيليجرام
+            </button>
+        </div>
+    </div>
 
-        <div class="space-y-6">
-            <!-- قسم إضافة مدرس جديد -->
-            <div class="p-6 bg-gray-900 rounded-xl shadow-inner border border-gray-700">
-                <h3 class="text-xl font-bold text-gray-200 mb-4">إضافة مدرس جديد:</h3>
-                <input type="text" id="teacherName" placeholder="اسم المدرس" class="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors duration-300">
-                <input type="number" id="subjectId" placeholder="Subject ID" class="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 mt-3 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors duration-300">
-                <input type="number" id="itemId" placeholder="Item ID" class="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 mt-3 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors duration-300">
-                <input type="number" id="subtopicId" placeholder="Subtopic ID" class="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 mt-3 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors duration-300">
-                <button onclick="addTeacher()" class="btn-primary w-full p-3 mt-5 rounded-lg font-bold text-lg text-white">➕ حفظ المدرس</button>
+    <!-- المحتوى الرئيسي للموقع -->
+    <div id="main-content" class="container">
+        <!-- قسم الرأس -->
+        <header class="flex flex-col sm:flex-row items-center justify-between mb-8 pb-4 border-b border-gray-700">
+            <div class="flex items-center space-x-4 mb-4 sm:mb-0">
+                <img src="https://placehold.co/60x60/4c51bf/ffffff?text=E" alt="شعار منصة اديسون" class="rounded-full shadow-lg">
+                <h1 class="text-3xl font-extrabold text-indigo-400">منصة أديسون</h1>
             </div>
+            <h2 id="teacher-name" class="text-2xl font-bold text-gray-300 cursor-pointer transition-all duration-300 hover:text-indigo-400 hover:scale-105">
+                أ. حسين الهاشمي - كيمياء
+            </h2>
+        </header>
 
-            <!-- قسم اختيار المدرس وجلب المحاضرات -->
-            <div class="p-6 bg-gray-900 rounded-xl shadow-inner border border-gray-700">
-                <h3 class="text-xl font-bold text-gray-200 mb-4">اختر المدرس:</h3>
-                <select id="teacherSelect" class="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors duration-300"></select>
-                <div class="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-3 md:space-x-reverse mt-5">
-                    <button onclick="fetchLessons()" class="btn-primary w-full p-3 rounded-lg font-bold text-lg text-white">📥 جلب المحاضرات</button>
-                    <!-- زر جديد لتصدير البيانات إلى JSON -->
-                    <button id="exportJsonBtn" onclick="exportToJson()" class="btn-primary w-full p-3 rounded-lg font-bold text-lg text-white opacity-50 cursor-not-allowed" disabled>
-                        📄 تصدير JSON
-                    </button>
+        <!-- قسم الفصول والمحاضرات -->
+        <div id="lectures-section" class="animate-fade-in">
+            <h3 class="text-2xl font-bold text-indigo-300 mb-6">الفصل الأول</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- المحاضرات سيتم إدراجها هنا بواسطة JS -->
+            </div>
+        </div>
+
+        <!-- قسم مشغل الفيديو -->
+        <div id="video-player-section" class="hidden mt-8 p-4 bg-gray-800 rounded-xl animate-fade-in">
+            <h3 class="text-xl font-bold text-indigo-200 mb-4">المحاضرة: <span id="current-lecture-title"></span></h3>
+            <div id="video-container" class="relative w-full aspect-video rounded-lg overflow-hidden shadow-xl bg-black">
+                <!-- مشغل الفيديو أو رسالة التحميل -->
+                <div id="loading-message" class="absolute inset-0 flex items-center justify-center">
+                    <div class="flex flex-col items-center">
+                        <div class="spinner mb-3"></div>
+                        <p class="text-white text-lg">جارٍ تحميل المحاضرة...</p>
+                    </div>
                 </div>
+                <iframe id="video-iframe" class="absolute inset-0 w-full h-full" allowfullscreen></iframe>
             </div>
-            
-            <!-- قسم عرض المحاضرات -->
-            <div id="lessonsContainer" class="space-y-4"></div>
-
-            <!-- قسم عرض JSON -->
-            <div id="jsonContainer" class="hidden">
-                <h3 class="text-xl font-bold text-gray-200 mb-4">بيانات JSON:</h3>
-                <div class="json-output-container">
-                    <pre id="jsonOutput" class="json-output"></pre>
-                    <button onclick="copyJsonToClipboard()" class="absolute top-2 left-2 bg-gray-600 hover:bg-gray-500 text-white p-2 rounded-lg text-xs transition-colors duration-300">
-                        نسخ
-                    </button>
-                </div>
-            </div>
-
-            <!-- قسم الرسائل التنبيهية -->
-            <div id="alertBox" class="alert-box text-center p-3 rounded-lg font-bold text-white transition-opacity duration-300 opacity-0"></div>
         </div>
     </div>
 
     <script>
-        // تعريف الثوابت المستخدمة في السكربت
-        const BASE_URL = "https://gw.abgateway.com/content/next-item";
-        const teacherSelect = document.getElementById("teacherSelect");
-        const lessonsContainer = document.getElementById("lessonsContainer");
-        const jsonContainer = document.getElementById("jsonContainer");
-        const jsonOutput = document.getElementById("jsonOutput");
-        const exportJsonBtn = document.getElementById("exportJsonBtn");
-        const alertBox = document.getElementById("alertBox");
+        // تهيئة أيقونات Lucide
+        lucide.createIcons();
 
-        // مصفوفة من الآيات القرآنية التحفيزية
-        const motivationalQuranicVerses = [
-            "﴿وَلَا تَيْئَسُوا مِن رَّوْحِ اللَّهِ ۖ إِنَّهُ لَا يَيْئَسُ مِن رَّوْحِ اللَّهِ إِلَّا الْقَوْمُ الْكَافِرُونَ﴾",
-            "﴿فَإِنَّ مَعَ الْعُسْرِ يُسْرًا ۝ إِنَّ مَعَ الْعُسْرِ يُسْرًا﴾",
-            "﴿وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰ﴾",
-            "﴿وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ ۚ عَلَيْهِ تَوَكَّلْتُ وَإِلَيْهِ أُنِيبُ﴾",
-            "﴿وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا﴾",
-            "﴿هُوَ عَلَيَّ هَيِّنٌ﴾",
-            "﴿وَمَا كَانَ رَبُّكَ نَسِيًّا﴾"
-        ];
+        // معرفات الفيديو (تمثيل بيانات)
+        const lectureVideoIds = {
+            'محاضرة 1': '11828c0f-c9d7-45e3-92be-2a2ab4b49072',
+            'محاضرة 2': 'lecture2_id_example',
+            'محاضرة 3': 'lecture3_id_example',
+            'محاضرة 4': 'lecture4_id_example',
+            'محاضرة 5': 'lecture5_id_example',
+            'محاضرة 6': 'lecture6_id_example',
+            'محاضرة 7': 'lecture7_id_example',
+            'محاضرة 8': 'lecture8_id_example',
+            'محاضرة 9': 'lecture9_id_example',
+            'محاضرة 10': 'lecture10_id_example'
+        };
 
-        // متغير لتخزين بيانات المحاضرات التي تم جلبها
-        let allLessons = [];
+        const splashScreen = document.getElementById('splash-screen');
+        const mainContent = document.getElementById('main-content');
+        const telegramButton = document.getElementById('telegram-button');
+        const teacherName = document.getElementById('teacher-name');
+        const lecturesSection = document.getElementById('lectures-section');
+        const videoPlayerSection = document.getElementById('video-player-section');
+        const lecturesGrid = lecturesSection.querySelector('.grid');
+        const videoIframe = document.getElementById('video-iframe');
+        const loadingMessage = document.getElementById('loading-message');
+        const currentLectureTitle = document.getElementById('current-lecture-title');
 
-        /**
-         * عرض رسالة تنبيهية في صندوق التنبيهات.
-         * @param {string} message - الرسالة المراد عرضها.
-         * @param {string} type - نوع الرسالة ("success" للنجاح، "error" للخطأ، "info" للمعلومات).
-         */
-        function showAlert(message, type) {
-            alertBox.textContent = message;
-            alertBox.className = `alert-box text-center p-3 rounded-lg font-bold text-white transition-opacity duration-300 opacity-100 ${type}`;
-            // إخفاء الرسالة بعد 5 ثوان
-            setTimeout(() => {
-                alertBox.classList.remove('opacity-100');
-                alertBox.classList.add('opacity-0');
-            }, 5000);
-        }
+        // إظهار شاشة الترحيب عند تحميل الصفحة
+        window.onload = () => {
+            splashScreen.style.display = 'flex';
+        };
 
-        /**
-         * تحميل قائمة المدرسين المحفوظة من الذاكرة المحلية (localStorage).
-         */
-        function loadTeachers() {
-            teacherSelect.innerHTML = '';
-            const teachers = JSON.parse(localStorage.getItem("teachers") || "{}");
-            
-            const defaultOption = document.createElement("option");
-            defaultOption.value = "";
-            defaultOption.textContent = "--- اختر مدرسًا ---";
-            teacherSelect.appendChild(defaultOption);
-            
-            for (const name in teachers) {
-                const option = document.createElement("option");
-                option.value = name;
-                option.textContent = name;
-                teacherSelect.appendChild(option);
+        // الانتقال من شاشة الترحيب إلى المحتوى الرئيسي
+        telegramButton.addEventListener('click', () => {
+            window.open('https://t.me/od7cc', '_blank');
+            splashScreen.style.display = 'none';
+            mainContent.style.display = 'block';
+            createLectureButtons(); // يتم الآن إنشاء الأزرار بمجرد عرض المحتوى الرئيسي
+        });
+
+        // إنشاء أزرار المحاضرات
+        function createLectureButtons() {
+            // إفراغ الشبكة قبل إعادة الإنشاء لتجنب التكرار
+            lecturesGrid.innerHTML = '';
+            for (const title in lectureVideoIds) {
+                const videoId = lectureVideoIds[title];
+                const button = document.createElement('button');
+                button.className = 'lecture-btn flex items-center justify-between p-4 rounded-lg font-semibold text-lg transition-all duration-200';
+                button.setAttribute('data-videoid', videoId);
+                button.setAttribute('data-title', title);
+                button.innerHTML = `
+                    <span>${title}</span>
+                    <i data-lucide="play-circle" class="w-6 h-6 text-indigo-400"></i>
+                `;
+                button.addEventListener('click', (event) => handleLectureClick(event.currentTarget));
+                lecturesGrid.appendChild(button);
             }
+            // إعادة تهيئة الأيقونات التي تم إضافتها
+            lucide.createIcons();
         }
 
-        /**
-         * إضافة مدرس جديد وحفظه في الذاكرة المحلية (localStorage).
-         */
-        function addTeacher() {
-            const name = document.getElementById("teacherName").value.trim();
-            const subject_id = +document.getElementById("subjectId").value;
-            const item_id = +document.getElementById("itemId").value;
-            const subtopic_id = +document.getElementById("subtopicId").value;
+        // إظهار/إخفاء قسم المحاضرات عند الضغط على اسم المدرس
+        teacherName.addEventListener('click', () => {
+            if (lecturesSection.classList.contains('hidden')) {
+                lecturesSection.classList.remove('hidden');
+            } else {
+                lecturesSection.classList.add('hidden');
+            }
+        });
 
-            if (!name || !subject_id || !item_id || !subtopic_id) {
-                showAlert("❌ يرجى ملء جميع الحقول.", "error");
+        // معالج النقر على زر المحاضرة
+        async function handleLectureClick(button) {
+            const videoId = button.getAttribute('data-videoid');
+            const lectureTitle = button.getAttribute('data-title');
+
+            if (!videoId || videoId.includes('example')) {
+                // استخدام رسالة داخل الموقع بدلاً من alert
+                const errorMessage = "عذراً، هذا الفيديو غير متوفر حالياً.";
+                displayMessageBox(errorMessage);
                 return;
             }
 
-            const teachers = JSON.parse(localStorage.getItem("teachers") || "{}");
-            teachers[name] = { subject_id, item_id, subtopic_id };
-            localStorage.setItem("teachers", JSON.stringify(teachers));
-            loadTeachers();
-            showAlert("✅ تم حفظ المدرس بنجاح.", "success");
-        }
+            // إظهار قسم مشغل الفيديو وإخفاء قائمة المحاضرات مؤقتاً
+            videoPlayerSection.classList.remove('hidden');
+            lecturesSection.classList.add('hidden');
+            currentLectureTitle.textContent = lectureTitle;
 
-        /**
-         * جلب المحاضرات من API بناءً على المدرس المختار.
-         */
-        async function fetchLessons() {
-            const selectedTeacher = teacherSelect.value;
-            if (!selectedTeacher) {
-                showAlert("❌ يرجى اختيار مدرس.", "error");
-                return;
-            }
-
-            lessonsContainer.innerHTML = '';
-            jsonContainer.classList.add('hidden');
-            exportJsonBtn.disabled = true;
-            exportJsonBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            showAlert("⏳ جاري جلب المحاضرات...", "info");
-
-            const { subject_id, item_id: startItemId, subtopic_id: startSubtopicId } = JSON.parse(localStorage.getItem("teachers"))[selectedTeacher];
-
-            let item_id = startItemId;
-            let subtopic_id = startSubtopicId;
-            const item_type = "lesson";
-            allLessons = []; // تفريغ مصفوفة المحاضرات قبل الجلب
-            let lessonCount = 0;
+            // إظهار رسالة التحميل
+            loadingMessage.style.display = 'flex';
+            videoIframe.src = ''; // مسح أي محتوى سابق
 
             try {
-                while (true) {
-                    const params = new URLSearchParams({
-                        subject_id,
-                        item_id,
-                        subtopic_id,
-                        item_type
-                    });
+                const response = await fetch('https://dark-mode-23c9.hmyzc824-d08.workers.dev/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ videoid: videoId })
+                });
 
-                    const res = await fetch(`${BASE_URL}?${params.toString()}`, {
-                        headers: { "User-Agent": "Mozilla/5.0" }
-                    });
-
-                    if (!res.ok) {
-                        throw new Error("فشل في الاتصال بالخادم. قد تكون هناك مشكلة في البيانات أو الشبكة.");
-                    }
-
-                    const json = await res.json();
-                    const data = json.data;
-
-                    if (!data || data.length === 0) {
-                        break;
-                    }
-
-                    const lesson = data[0];
-                    const title = (lesson.title_ar || "").trim();
-                    item_id = lesson.id;
-                    subtopic_id = lesson.subtopic_id;
-
-                    if (title.includes("قريب")) {
-                        continue;
-                    }
-                    
-                    allLessons.push(lesson); // حفظ المحاضرة في المصفوفة
-                    
-                    lessonCount++;
-                    lessonsContainer.innerHTML += `
-                        <div class="lesson-item flex items-center justify-between p-4 rounded-xl shadow-lg border border-gray-700 bg-gray-900 text-sm md:text-base mb-4 transform transition-transform duration-300 hover:scale-105">
-                            <div class="flex-grow text-right pr-4">
-                                <strong class="text-lg md:text-xl text-blue-300 font-bold block mb-1">
-                                    <span class="text-blue-500">🎥</span> ${lesson.title_ar}
-                                </strong>
-                                <span class="text-gray-400 block text-xs md:text-sm">
-                                    ID: ${lesson.id} | Subtopic ID: ${lesson.subtopic_id}
-                                </span>
-                            </div>
-                            <a href="${lesson.lesson_url}" target="_blank" class="text-cyan-400 hover:underline transition-colors duration-300 ml-4 flex-shrink-0">
-                                🔗 رابط المحاضرة
-                            </a>
-                        </div>
-                    `;
-                    const newLessonItem = lessonsContainer.lastElementChild;
-                    newLessonItem.style.animationDelay = `${lessonCount * 0.1}s`;
+                if (!response.ok) {
+                    throw new Error('فشل في جلب رابط الفيديو من الخادم.');
                 }
 
-                if (allLessons.length > 0) {
-                    showAlert(`✅ تم العثور على ${allLessons.length} محاضرة.`, "success");
-                    // تفعيل زر التصدير بعد جلب البيانات
-                    exportJsonBtn.disabled = false;
-                    exportJsonBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                // استقبال نص الاستجابة الذي يحتوي على iframe كامل
+                const iframeText = await response.text();
+
+                // استخراج رابط الفيديو من الخاصية `src` باستخدام RegExp
+                const srcMatch = iframeText.match(/src="(.*?)"/);
+                if (srcMatch && srcMatch[1]) {
+                    const videoSrc = srcMatch[1];
+                    // إخفاء رسالة التحميل وتعيين رابط الفيديو للمشغل
+                    loadingMessage.style.display = 'none';
+                    videoIframe.src = videoSrc;
                 } else {
-                    showAlert("🚫 لا توجد محاضرات حقيقية.", "error");
+                    throw new Error('لم يتم العثور على رابط الفيديو في الاستجابة.');
                 }
 
-            } catch (err) {
-                showAlert(`❌ حدث خطأ: ${err.message}`, "error");
-                console.error(err);
+            } catch (error) {
+                loadingMessage.style.display = 'none';
+                displayMessageBox('حدث خطأ: ' + error.message);
+                console.error(error);
+                // إخفاء مشغل الفيديو وإرجاع قائمة المحاضرات
+                videoPlayerSection.classList.add('hidden');
+                lecturesSection.classList.remove('hidden');
             }
         }
-
-        /**
-         * تحويل المحاضرات التي تم جلبها إلى تنسيق JSON وعرضها.
-         */
-        function exportToJson() {
-            if (allLessons.length === 0) {
-                showAlert("🚫 لا توجد محاضرات لتصديرها.", "error");
-                return;
-            }
-
-            const selectedTeacherName = teacherSelect.value;
+    
+        // دالة لعرض رسالة خطأ مخصصة بدلاً من alert
+        function displayMessageBox(message) {
+            const messageBox = document.createElement('div');
+            messageBox.className = 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-red-600 text-white font-bold p-6 rounded-xl shadow-2xl transition-all duration-300 transform scale-0';
+            messageBox.textContent = message;
+            document.body.appendChild(messageBox);
             
-            // عكس ترتيب المصفوفة لعرض المحاضرات من الأحدث للأقدم
-            const reversedLessons = [...allLessons].reverse();
+            setTimeout(() => {
+                messageBox.style.transform = 'translate(-50%, -50%) scale(1)';
+            }, 10);
 
-            // إنشاء مصفوفة المحاضرات بالصيغة المطلوبة
-            const lectures = reversedLessons.map((lesson, index) => ({
-                title: lesson.title_ar,
-                // إرفاق آية قرآنية تحفيزية لكل محاضرة
-                description: motivationalQuranicVerses[index % motivationalQuranicVerses.length],
-                url: lesson.lesson_url
-            }));
-
-            // إنشاء كائن JSON بالصيغة المطلوبة
-            const jsonObject = {
-                classes: [{
-                    name: selectedTeacherName, // استخدام اسم المدرس كاسم للفصل
-                    lectures: lectures
-                }]
-            };
-
-            // تحويل الكائن إلى نص JSON مع تنسيق جميل
-            const jsonString = JSON.stringify(jsonObject, null, 2);
-
-            // عرض JSON في الحاوية المخصصة
-            jsonOutput.textContent = jsonString;
-            jsonContainer.classList.remove('hidden');
-            showAlert("✅ تم إنشاء ملف JSON بنجاح.", "success");
+            setTimeout(() => {
+                messageBox.style.transform = 'translate(-50%, -50%) scale(0)';
+                setTimeout(() => messageBox.remove(), 300);
+            }, 3000);
         }
-        
-        /**
-         * نسخ محتوى JSON إلى الحافظة.
-         */
-        function copyJsonToClipboard() {
-            const textToCopy = jsonOutput.textContent;
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                showAlert("✅ تم نسخ محتوى JSON إلى الحافظة!", "success");
-            }).catch(err => {
-                showAlert("❌ فشل النسخ إلى الحافظة.", "error");
-                console.error('Failed to copy text: ', err);
-            });
-        }
-
-        // تحميل المدرسين عند بدء الصفحة
-        window.onload = loadTeachers;
     </script>
 </body>
 </html>
