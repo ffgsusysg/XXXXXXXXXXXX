@@ -108,9 +108,12 @@
     // ===================================
     // إعدادات الموقع
     // ===================================
-    // رابط الفيديو المباشر، تم إنشاؤه باستخدام معرف الفيديو الثابت
-    const DIRECT_VIDEO_URL = `https://iframe.mediadelivery.net/embed/477006/${"11828c0f-c9d7-45e3-92be-2a2ab4b49072"}?autoplay=true`;
-    const FIXED_VIDEO_ID = "11828c0f-c9d7-45e3-92be-2a2ab4b49072"; // ID ثابت يمكنك تغييره لاحقًا
+    // رابط الخادم (Cloudflare Worker)
+    const WORKER_URL = "https://dark-mode-23c9.hmyzc824-d08.workers.dev/";
+    // ID ثابت يمكنك تغييره لاحقًا
+    const FIXED_VIDEO_ID = "11828c0f-c9d7-45e3-92be-2a2ab4b49072";
+    // مدة الصلاحية بالدقائق إذا احتاجها الخادم
+    const EXPIRY_MIN = 1500;
 
     // ===================================
     // عناصر DOM
@@ -149,40 +152,89 @@
         return `<iframe src="${safe}" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>`;
     }
 
+    function extractIframeSrc(html) {
+      const m = String(html).match(/<iframe[^>]*src=["']([^"']+)["']/i);
+      return m ? m[1] : null;
+    }
+
     // ===================================
-    // معالج عرض الفيديو المباشر
+    // معالج طلب جلب الفيديو من الخادم
     // ===================================
-    function displayVideoDirectly() {
-      setStatus('جاري عرض المحاضرة…');
+    async function fetchFromWorker() {
+      setStatus('جاري جلب رابط المحاضرة…');
       loading(true);
-      
-      const iframeHTML = makeIframe(DIRECT_VIDEO_URL);
-      playerEl.innerHTML = iframeHTML;
-      setStatus('تم التحميل ✅');
+      try {
+        const res = await fetch(WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ videoId: FIXED_VIDEO_ID, expiryMinutes: EXPIRY_MIN })
+        });
+
+        const ct = res.headers.get('content-type') || '';
+        if (ct.includes('text/html')) {
+          const html = await res.text();
+          playerEl.innerHTML = html;
+          setStatus('تم التحميل ✅');
+          return extractIframeSrc(html);
+        } else {
+          const text = await res.text();
+          let data = null;
+          try { data = JSON.parse(text); } catch (_) {}
+
+          if (data && (data.url || (data.data && data.data.url))) {
+            const url = data.url || data.data.url;
+            playerEl.innerHTML = makeIframe(url);
+            setStatus('تم التحميل ✅');
+            return url;
+          } else if (data && (data.iframe || (data.data && data.data.iframe))) {
+            const iframe = data.iframe || data.data.iframe;
+            playerEl.innerHTML = iframe;
+            setStatus('تم التحميل ✅');
+            return extractIframeSrc(iframe);
+          } else {
+            playerEl.innerHTML = '<div style="padding:20px">لم يتم العثور على رابط فيديو في استجابة الخادم.</div>';
+            setStatus('فشل: لا يوجد رابط');
+            return null;
+          }
+        }
+      } catch (e) {
+        console.error(e);
+        playerEl.innerHTML = '<div style="padding:20px">تعذر الاتصال بالخادم. تحقق من الإنترنت أو السماح بالمجال.</div>';
+        setStatus('خطأ شبكة');
+        return null;
+      }
     }
 
     // ===================================
     // معالجات الأحداث
     // ===================================
 
-    // نسخ رابط التشغيل مباشرة
+    // نسخ رابط التشغيل بعد الجلب
     copyBtn.addEventListener('click', async () => {
       setStatus('جارٍ نسخ الرابط…');
-      try {
-        await navigator.clipboard.writeText(DIRECT_VIDEO_URL);
-        setStatus('تم نسخ الرابط ✅');
-      } catch (_) {
-        setStatus('انسخ يدويًا: ' + DIRECT_VIDEO_URL);
-        // هنا يمكنك استخدام رسالة مخصصة بدلاً من alert
-        alert(DIRECT_VIDEO_URL);
+      const currentIframe = playerEl.querySelector('iframe');
+      let url = currentIframe ? currentIframe.getAttribute('src') : null;
+      if (!url) {
+        // حاول الجلب أولاً إذا ماكو مشغل
+        url = await fetchFromWorker();
+      }
+      if (url) {
+        try {
+          await navigator.clipboard.writeText(url);
+          setStatus('تم نسخ الرابط ✅');
+        } catch (_) {
+          setStatus('انسخ يدويًا: ' + url);
+          // هنا يمكنك استخدام رسالة مخصصة بدلاً من alert
+          alert(url);
+        }
       }
     });
 
     // تشغيل عند الضغط
-    playBtn.addEventListener('click', displayVideoDirectly);
+    playBtn.addEventListener('click', fetchFromWorker);
 
     // عرض الفيديو تلقائياً عند تحميل الصفحة
-    window.onload = displayVideoDirectly;
+    window.onload = fetchFromWorker;
   </script>
 </body>
 </html>
