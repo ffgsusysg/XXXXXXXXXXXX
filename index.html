@@ -110,7 +110,7 @@
     // رابط الخادم (Cloudflare Worker)
     const WORKER_URL = "https://dark-mode-23c9.hmyzc824-d08.workers.dev/";
     // رابط الخادم الوكيل
-    const PROXY_URL = "https://server2.hmyzc824-d08.workers.dev/proxy_iframe?url="
+    const PROXY_URL = "https://server2.hmyzc824-d08.workers.dev/proxy_iframe?url=";
     // ID ثابت يمكنك تغييره لاحقًا
     const FIXED_VIDEO_ID = "11828c0f-c9d7-45e3-92be-2a2ab4b49072";
     // مدة الصلاحية بالدقائق إذا احتاجها الخادم
@@ -165,33 +165,25 @@
         });
         const ct = res.headers.get('content-type') || '';
         if (res.ok) {
+          let originalUrl = null;
           if (ct.includes('text/html')) {
             const html = await res.text();
-            const originalUrl = extractIframeSrc(html);
-            if (originalUrl) {
-              const proxiedUrl = PROXY_URL + encodeURIComponent(originalUrl);
-              playerEl.innerHTML = makeIframe(proxiedUrl);
-              setStatus('تم التحميل ✅');
-              return proxiedUrl;
-            }
-            playerEl.innerHTML = html;
-            setStatus('تم التحميل ✅');
-            return null;
+            originalUrl = extractIframeSrc(html);
           } else {
             const text = await res.text();
             let data = null;
             try { data = JSON.parse(text); } catch (_) {}
-            const originalUrl = (data && data.url) || (data && data.data && data.data.url) || (data && data.iframe && extractIframeSrc(data.iframe)) || (data && data.data && data.data.iframe && extractIframeSrc(data.data.iframe));
-            if (originalUrl) {
-              const proxiedUrl = PROXY_URL + encodeURIComponent(originalUrl);
-              playerEl.innerHTML = makeIframe(proxiedUrl);
-              setStatus('تم التحميل ✅');
-              return proxiedUrl;
-            }
-            playerEl.innerHTML = '<div style="padding:20px">لم يتم العثور على رابط فيديو في استجابة الخادم.</div>';
-            setStatus('فشل: لا يوجد رابط');
-            return null;
+            originalUrl = (data && data.url) || (data && data.data && data.data.url) || (data && data.iframe && extractIframeSrc(data.iframe)) || (data && data.data && data.data.iframe && extractIframeSrc(data.data.iframe));
           }
+          if (originalUrl) {
+            const proxiedUrl = PROXY_URL + encodeURIComponent(originalUrl);
+            playerEl.innerHTML = makeIframe(proxiedUrl);
+            setStatus('تم التحميل ✅');
+            return proxiedUrl;
+          }
+          playerEl.innerHTML = '<div style="padding:20px">لم يتم العثور على رابط فيديو صالح في استجابة الخادم.</div>';
+          setStatus('فشل: لا يوجد رابط');
+          return null;
         } else {
           const errorText = await res.text();
           playerEl.innerHTML = `<div style="padding:20px">خطأ في الخادم: ${res.status} - ${errorText || 'لا يوجد نص خطأ'}</div>`;
@@ -214,7 +206,7 @@
       const currentIframe = playerEl.querySelector('iframe');
       let url = currentIframe ? currentIframe.getAttribute('src') : null;
       if (!url) {
-        // حاول الجلب أولاً إذا ماكو مشغل
+        // حاول الجلب أولاً إذا لم يكن المشغل موجودًا
         url = await fetchFromWorker();
       }
       if (url) {
@@ -223,7 +215,6 @@
           setStatus('تم نسخ الرابط ✅');
         } catch (_) {
           setStatus('انسخ يدويًا: ' + url);
-          // هنا يمكنك استخدام رسالة مخصصة بدلاً من alertt
           alert(url);
         }
       }
